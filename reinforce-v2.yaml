@@ -552,7 +552,7 @@ Resources:
           - ''
           - - "#! /bin/bash\n"
             - "sudo cd /var/tmp\n"
-            - "sudo wget -O initialize_attacker.sh https://raw.githubusercontent.com/wwce/terraform/master/aws/Jenkins_proj-master/WebInDeploy/scripts/initialize_attacker.sh\n"
+            - "sudo wget -O initialize_attacker.sh https://raw.githubusercontent.com/jhseceng/secframework/master/scripts/initialize_attacker.sh\n"
             - "sudo chmod 755 initialize_attacker.sh &&\n"
             - "sudo bash ./initialize_attacker.sh\n"
       InstanceType: m4.large
@@ -583,7 +583,7 @@ Resources:
           - ''
           - - "#! /bin/bash\n"
             - "sudo cd /var/tmp\n"
-            - "sudo wget -O initialize_webserver.sh https://raw.githubusercontent.com/wwce/terraform/master/aws/Jenkins_proj-master/WebInDeploy/scripts/initialize_webserver.sh\n"
+            - "sudo wget -O initialize_webserver.sh https://raw.githubusercontent.com/jhseceng/secframework/master/scripts/initialize_webserver.sh\n"
             - "sudo chmod 755 initialize_webserver.sh &&\n"
             - "sudo bash ./initialize_webserver.sh\n"
       InstanceType: m4.large
