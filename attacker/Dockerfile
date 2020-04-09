@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y git curl wget netcat nmap net-tools sud
 RUN echo 'root:paloalto' | chpasswd
 
 ENV TINI_VERSION v0.14.0
-ADD https://raw.githubusercontent.com/wwce/terraform/master/aws/Jenkins_proj-master/jenkins/tini /bin/tini
+ADD https://raw.githubusercontent.com/jhseceng/secframework/master/jenkins/tini /bin/tini
 RUN chmod +x /bin/tini
 
 RUN set -ex \
@@ -19,6 +19,10 @@ RUN set -ex \
     && wget https://raw.githubusercontent.com/jhseceng/secframework/master/payload/json-lib-2.4-jenkins-2.jar -O ~/json-lib-2.4-jenkins-2.jar -q --progress=bar:force:noscroll --show-progress \
     && wget https://raw.githubusercontent.com/jhseceng/secframework/master/payload/payload.jar -O ~/payload.jar -q --progress=bar:force:noscroll --show-progress \
     && wget https://raw.githubusercontent.com/jhseceng/secframework/master/payload/exploit.py -O ~/exploit.py -q --progress=bar:force:noscroll --show-progress
+    && wget https://raw.githubusercontent.com/jhseceng/secframework/master/attacker/auto-sploit.sh -O ~/auto-sploit.sh -q --progress=bar:force:noscroll --show-progress
+    && wget https://raw.githubusercontent.com/jhseceng/secframework/master/attacker/exp-server.py -O ~/exp-server.py -q --progress=bar:force:noscroll --show-progress
+    && wget https://raw.githubusercontent.com/jhseceng/secframework/master/attacker/run.sh -O ~/run.sh -q --progress=bar:force:noscroll --show-progress
+
 
 EXPOSE 443 5000
 
@@ -37,6 +41,6 @@ USER root
 
 ENTRYPOINT ["/bin/tini", "--"]
 ENV FLASK_APP=/root/exp-server.py
-
+ENV FLASK_DEBUG=1
 # CMD ["/usr/local/bin/run.sh"]
 CMD ["flask", "run", "--host=0.0.0.0"]
