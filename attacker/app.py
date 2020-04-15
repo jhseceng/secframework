@@ -9,6 +9,7 @@ app = Flask(__name__)
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
 logger = logging.getLogger()
 
+
 app.config['SECRET_KEY'] = 'c27e5a04065046f45a88300d80baa8cd'
 
 

