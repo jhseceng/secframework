@@ -66,7 +66,7 @@ def launch_sploit():
         found_index = child.expect(['Enter Jenkins Target IP Address', pexpect.EOF, pexpect.TIMEOUT])
         if found_index == 0:
             print(child.before)
-            print('Sending target ip')
+            print('Sending target ip {}'.format(target_ip))
             child.sendline(target_ip)
         else:
             print(child.before)

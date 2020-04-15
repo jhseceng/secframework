@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Lab Infrastructure {% endblock %}
+{% block content %}
+    <div class="row" style="margin-top: 20px" xmlns="http://www.w3.org/1999/html">
+        <h1>Infrastructure Diagram</h1>
+    </div>
+    <div class="row" style="margin-top: 20px">
+        <p>
+            Infrastructure Deployed with the CFT
+
+        </p>
+
+
+    </div>
+    <div>
+    <img src="{{ url_for('static', filename='infra.png') }}">
+    </div>
+
+    <div>
+
+
+
+
+
+
+{% endblock %}

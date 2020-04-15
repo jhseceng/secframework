@@ -1,8 +1,7 @@
 version: '3'
 services:
   attacker:
-    build: .
-    container_name: attacker
+    image: jharris10/attacker:v2
     ports:
       - "443:443"
       - "5000:5000"

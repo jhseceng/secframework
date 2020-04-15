@@ -1,0 +1,76 @@
+{#<html>#}
+{#<head>#}
+{#    <div>#}
+{#        <title>AWS and Crowdstrike Security - Better Together</title>#}
+{#        <style type="text/css">#}
+{#            h1 {#}
+{#                color: black;#}
+{#            }#}
+{#        </style>#}
+{#    </div>#}
+{#</head>#}
+{#<body>#}
+{#<div id="tile" , class="container>">#}
+{#    <h1>AWS and Crowdstrike Security - Better Together</h1>#}
+{#</div>#}
+{% extends "base.html" %}
+{% block title %}Lab Infrastructure {% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <h3>Launching the Attack</h3>
+    </div>
+    <div class="row" style="margin-top:20px">
+        <div class="col-md-12">
+            <form id="formoid" action="{{% url_for, 'launch_sploit' %}}" method="POST">
+                <div class="form-group">
+                    <label for="attackerip">Attacker IP:</label>
+                    <input type="text" id="attacker" name="target"><br><br>
+                    <label for="lname">ALB DNS Name:</label>
+                    <input type="text" id="target" name="target"><br><br>
+                    <input type="submit"  id="submitButton"  name="submitButton" value="Submit">
+                </div>
+
+            </form>
+        </div>
+    </div>
+    <div class="row" style="margin-top:20px">
+        <div class="col-md-12">
+            <form id="formsendcmd" action="{{% url_for, 'send_cmd' %}}" method="POST">
+                <div class="form-group">
+                    <label for="attackerip">Attacker IP:</label>
+                    <input type="text" id="attacker" name="target"><br><br>
+                    <label for="lname">ALB DNS Name:</label>
+                    <input type="text" id="target" name="target"><br><br>
+                    <input type="submit"  id="submitButton"  name="submitButton" value="Submit">
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script type='text/javascript'>
+    /* attach a submit handler to the form */
+    $("#formlaunch").submit(function(event) {
+
+      /* stop form from submitting normally */
+      event.preventDefault();
+
+      /* get the action attribute from the <form action=""> element */
+      var $form = $( this ),
+          url = $form.attr( 'action' );
+
+      /* Send the data using post with element id name and name2*/
+      var posting = $.post( url, { name: $('#attacker').val(), name2: $('#target').val() } );
+
+      /* Alerts the results */
+      posting.done(function( data ) {
+        alert('success');
+      });
+    });
+</script>
+</body>
+</html>
+{% endblock %}
