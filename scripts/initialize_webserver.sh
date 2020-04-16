@@ -1,19 +1,35 @@
 #!/bin/bash
-apt-get update
+# Usage initialize_webserver.sh CID falcon_packagename s3bucketname
+# Example initialize_webserver -c "12345678" -f "falcon-sensor_5.30.0-9507_amd64.deb" -b "falcon_bootstrap"
+while getopts 'c:f:b:' OPTION;
+do
+  case "$OPTION" in
+    c)
+      CID="$OPTARG";;
+    f)
+      FILENAME="$OPTARG";;
+    b)
+      S3BUCKET="$OPTARG";;
+    *) echo "usage: $0 [-a] [-v]" >&2
+       exit 1 ;;
+  esac
+done
+
 apt-get update
 apt install docker.io python3-pip build-essential libssl-dev libffi-dev -y --force-yes
-cd /home/ubuntu
+
+cd /home/ubuntu || exit 1
 sudo apt install python-pip -y --force-yes
 sudo pip install awscli
 sudo aws s3 ls
-sudo aws s3 cp s3://falcon-bootstrap/sensor/falcon-sensor_5.27.0-9104_amd64.deb /home/ubuntu
-sudo dpkg -i falcon-sensor_5.27.0-9104_amd64.deb
+sudo aws s3 cp s3://"$S3BUCKET"/"$FILENAME" /home/ubuntu
+sudo dpkg -i "$FILENAME"
 sudo apt install -f -y
-sudo dpkg -i falcon-sensor_5.27.0-9104_amd64.deb
-sudo /opt/CrowdStrike/falconctl -s --cid=797BCD0BF5AE4F39A2B770FF52517125-08
+sudo dpkg -i "$FILENAME"
+sudo /opt/CrowdStrike/falconctl -s --cid=$CID
 sudo systemctl start falcon-sensor
 pip3 install docker-compose
-cd /var/tmp
+cd /var/tmp || exit 1
 echo "version: '3'" > docker-compose.yml
 echo "services:" >> docker-compose.yml
 echo "  jenkins:" >> docker-compose.yml
@@ -25,10 +41,3 @@ echo "    ports:" >> docker-compose.yml
 echo "      - \"50000:50000\"" >> docker-compose.yml
 echo "      - \"8080:8080\"" >> docker-compose.yml
 docker-compose up -d
-docker run -it busybox
-docker run -it busybox
-docker run -it busybox
-docker run -it busybox
-docker run -it busybox
-docker run -it busybox
-docker run -it busybox
