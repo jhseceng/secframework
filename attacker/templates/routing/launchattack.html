@@ -1,122 +1,67 @@
 {% extends "base.html" %}
 {% block title %}Lab Infrastructure {% endblock %}
 {% block content %}
-    <div class="row" style="margin-top: 20px" xmlns="http://www.w3.org/1999/html">
-        <h1>Launching the Attack</h1>
-    </div>
-    <div class="row" style="margin-top: 20px">
-        <form method="POST" action="{{ url_for('launch_sploit') }}">
+<div class="row" style="margin-top: 20px" xmlns="http://www.w3.org/1999/html">
+    <h1>Launching the Attack</h1>
+</div>
+<div class="row" style="margin-top: 20px">
+    <form method="POST" action="{{ url_for('launch_sploit') }}">
 
-            <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Getting Started</legend>
-                <div class="form-group">
-                    <label class="form-control-label form-control-lg" for="attacker">IP4 Address</label>
-                    <input class="form-control-label form-control-lg" id="attacker" name="attacker" type="text"
-                           value="86.144.52.130">
-                </div>
-                <div class="form-group">
-                    <label class="form-control-label form-control-lg" for="target">ALB DNS Name</label>
-                    <input class="form-control-label form-control-lg" id="target" name="target" type="text"
-                           value="Jenkins-ALB-462522413.eu-west-1.elb.amazonaws.com">
-                </div>
-            </fieldset>
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Getting Started</legend>
             <div class="form-group">
-                <input class="btn btn-outline-info launchbutton" onclick="submitlaunch()" id="submit" name="submit"
-                       value="Launch Attack">
-
+                <label class="form-control-label form-control-lg" for="attacker">IP4 Address</label>
+                <input class="form-control-label form-control-lg" id="attacker" name="attacker" type="text"
+                       value="34.246.4.180">
             </div>
-            <div id="successAlert" class="alert alert-success" role="alert" style="display: none;"></div>
-            <div id="errorAlert" class="alert alert-danger" role="alert" style="display: none;"></div>
+            <div class="form-group">
+                <label class="form-control-label form-control-lg" for="target">ALB DNS Name</label>
+                <input class="form-control-label form-control-lg" id="target" name="target" type="text"
+                       value="Jenkins-ALB-462522413.eu-west-1.elb.amazonaws.com">
+            </div>
+        </fieldset>
+        <div class="form-group">
+            <input class="btn btn-outline-info launchbutton" onclick="submitlaunch()" id="submit" name="submit"
+                   value="Launch Attack">
+
+        </div>
+        <div id="successAlert" class="alert alert-success" role="alert" style="display: none;"></div>
+        <div id="errorAlert" class="alert alert-danger" role="alert" style="display: none;"></div>
+
+    </form>
+</div>
+<div class="row" style="margin-top:20px">
+    <div class="col-md-12">
+        <form id="formsendcmd" action="{{ url_for, 'send_cmd' }}" method="POST">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" form="inputGroupSelect01">Options</label>
+                </div>
+                <select class="custom-select" id="cmdtosend">
+                    <option selected>ls -al</option>
+                    <option value="ls">ls</option>
+                    <option value="ps -ef">ps -ef</option>
+                    <option value="netstat -an">netstat -an</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input class="btn btn-outline-info sendbutton" onclick="submitsend()" id="submit" name="submit"
+                       value="Launch Attack">
+            </div>
 
         </form>
     </div>
-    <div class="row" style="margin-top:20px">
-        <div class="col-md-12">
-            <form id="formsendcmd" action="{{ url_for, 'send_cmd' }}" method="POST">
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <label class="input-group-text" form="inputGroupSelect01">Options</label>
-                    </div>
-                    <select class="custom-select" id="cmdtosend">
-                        <option selected>ls -al</option>
-                        <option value="ls">ls</option>
-                        <option value="ps -ef">ps -ef</option>
-                        <option value="netstat -an">netstat -an</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <input class="btn btn-outline-info sendbutton" onclick="submitsend()" id="submit" name="submit"
-                           value="Launch Attack">
-                </div>
-
-            </form>
-        </div>
+    <div>
+        <pre id="mydiv">
+		</pre>
     </div>
+</div>
 {% endblock content %}
 {% block scriptblock %}
-    <script>
-        function submitlaunch() {
-            let attacker = document.getElementById('attacker');
-            let target = document.getElementById('target');
 
-            let entry = {
-                attacker: attacker.value,
-                target: target.value,
-            };
-            fetch('/launch',{
-                method : 'POST',
-                body: JSON.stringify(entry),
-                cache: "no-cache",
-                headers: new Headers({
-                    "content-type": "application/json"
-                    })
-            })
-            .then(function (response){
-                if (response.status !== 200) {
-                    console.log('Bad Response: $(response.status)');
-                    $('#errorAlert').text('Bad HTTP Response').show();
-                    return;
-                }
-                response.json().then(function(data){
-                    if (data.result == 'success') {
-                        $('#errorAlert').hidden;
-                        $('#successAlert').text(data.message).show();
-                    }
-                    else {
-                         $('#successAlert').hidden;
-                        $('#errorAlert').text(data.message).show();
-                    }
 
-                    console.log(data)
-                })
-            })
-        }
+<script src="/static/launchattack.js"></script>
 
-        function submitsend() {
-
-            let commandselected = $('#cmdtosend').val()
-            let entry = {
-                cli: commandselected
-            };
-            val = JSON.stringify(entry)
-            fetch('/send',{
-                method : 'POST',
-                body: JSON.stringify(entry),
-                cache: "no-cache",
-                headers: new Headers({
-                    "content-type": "application/json"
-                    })
-            })
-            .then(function (response){
-                if (response.status !== 200) {
-                    console.log('Bad Response: $(response.status)');
-
-                    return;
-                }
-                })
-        }
-
-    </script>
 
 
 {% endblock scriptblock %}
