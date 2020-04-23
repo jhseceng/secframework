@@ -122,7 +122,7 @@ function submitsend() {
        } else if (contentType.startsWith('text/plain')) {
            response = response.text()
                .then((response) => {
-                   $('#collapseFour_output').html(response)
+                   $('#collapseFour_response').html(response)
                })
        } else throw new Error(`Unsupported response content-type: ${contentType}`);
    }
