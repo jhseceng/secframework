@@ -4,13 +4,6 @@ from flask import render_template, request, jsonify, make_response
 import os
 import time
 import logging
-import requests
-import json
-import nmap
-
-attacker_ip = os.environ['ATTACKER']
-target_ip = os.environ['VICTIM']
-
 app = Flask(__name__)
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
@@ -44,59 +37,6 @@ def vulnerability_info():
         return render_template('routing/vulnerability.html')
 
 
-@app.route("/nmap", methods=['POST'])
-def nmap_host():
-    if request.method == 'POST':
-        # target_ip = request.form.get('target')
-
-        nm = nmap.PortScanner()
-        scan_res = nm.scan(target_ip, arguments='-Pn -p80,443')
-        res = make_response(jsonify(
-            scan_res), 200)
-        res.headers['Content-type'] = 'application/json'
-        return res
-
-
-@app.route("/gdquery", methods=['GET'])
-def query_gd():
-    if request.method == 'POST':
-        if request.is_json:
-            logger.info(request.data)
-            payload = request.get_json()
-            print(payload)
-            print(type(payload))
-            events_of_interest = payload.get('events_of_interest', '')
-
-
-@app.route("/headers", methods=['POST'])
-def http_headers():
-    logger.info(request.data)
-    payload = request.get_json()
-    print(payload)
-    print(type(payload))
-    # target_ip = payload.get('target', '')
-    # attacker_ip = payload.get('attacker', '')
-    # target_ip = request.form.get('target')
-    response = requests.get('http://'+target_ip)
-    headers_dict = {}
-    print(response)
-    ignore_headers = ["Cache-Control","Date","Expires"]
-    for k, v in response.headers.items():
-        if k in ignore_headers:
-            logger.info('Ignoring header {}'.format(k))
-        else:
-            headers_dict[k] = v
-            # print('{}:{}'.format(k, v))
-
-    res = make_response(jsonify(
-        headers_dict), 200)
-    res.headers['Content-type'] = 'application/json'
-    print(res)
-    return res
-
-
-
-
 @app.route("/launch", methods=['GET', 'POST'])
 def launch_sploit():
     """
@@ -116,18 +56,23 @@ def launch_sploit():
     if request.method == 'POST':
         language = request.form.get('attackerIp')
 
-        # if request.is_json:
-        #     logger.info(request.data)
-        #     payload = request.get_json()
-        #     print(payload)
-        #     print(type(payload))
-        #     target_ip = payload.get('target', '')
-        #     attacker_ip = payload.get('attacker', '')
-        # else:
-        #     target_ip = request.form.get('target')
-        #     attacker_ip = request.form.get('attacker')
-        logger.info('Attacker is {} and Victim is {}'.format(attacker_ip, target_ip))
-        print('Attacker is {} and Victim is {}'.format(attacker_ip, target_ip))
+        if request.is_json:
+            logger.info(request.data)
+            payload = request.get_json()
+            print(payload)
+            print(type(payload))
+            target_ip = payload.get('target', '')
+            attacker_ip = payload.get('attacker', '')
+        else:
+            target_ip = request.form.get('target')
+            attacker_ip = request.form.get('attacker')
+        # res = make_response(jsonify(
+        #     {
+        #         "attacker":attacker_ip,
+        #         "target": target_ip
+        #     }), 200)
+        # return res
+
         if target_ip == "" or attacker_ip == "":
             logger.info('Incorrect Json format!')
             print(request.payload)
@@ -136,7 +81,6 @@ def launch_sploit():
                     "result": "error",
                     "message": "ERROR - Incorrect Json format"
                 }), 200)
-            res.headers['Content-type'] = 'application/json'
             return res
 
         exe = '/root/auto-sploit.sh'
@@ -306,7 +250,7 @@ def _launch_listener():
         if found_index != 0:
             return False
         app.config['listener'] = listener
-        print('Listener ready')
+        print('Launched and ready to rock')
         return True
     else:
         listener = app.config['listener']

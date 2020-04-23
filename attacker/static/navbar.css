@@ -1,0 +1,235 @@
+.my-nav {
+background-color: #fe0000;
+/*
+-webkit-box-shadow: 0 8px 6px -6px #999;
+-moz-box-shadow: 0 8px 6px -6px #999;
+box-shadow: 0 8px 6px -6px #999;
+*/
+}
+.my-nav a{
+font-family: 'Yanone Kaffeesatz', sans-serif;
+font-size: 22px;
+color: black;
+}
+.Info {
+margin-top: 40px;
+margin-left: -20px;
+}
+
+.container {
+/*position: absolute*/
+/*left: 0;*/
+width: 100%;
+height: 100%
+}
+
+.card {
+background-color: white;
+}
+.card-title {
+color: #fe0000;       
+}
+
+.card-text {
+color: black;   
+}
+
+.button {
+margin-left: auto;        
+}
+
+body {     
+background: url(Security%20image.png) no-repeat center center fixed; 
+-webkit-background-size: cover;
+-moz-background-size: cover;
+-o-background-size: cover;
+background-size: cover;
+background-size: cover;
+background-blend-mode: darken;
+}
+
+.logo {
+margin-left: -30px;
+}
+
+.list {
+color: white;    
+}
+
+.icon-bar {
+width: 22px; 
+height: 2px;
+background-color: white;
+display: block;
+transition: all 0.8s;
+margin-top: 4px;
+margin-bottom: 4px;
+margin-right: -2px;
+}
+ 
+.navbar-toggler {
+border: none;
+background: transparent !important;
+}
+.navbar-toggler .top-bar {
+transform: rotate(45deg);
+transform-origin: 10% 10%;
+}
+ 
+.navbar-toggler .middle-bar {
+opacity: 0;
+}
+ 
+.navbar-toggler .bottom-bar {
+transform: rotate(-45deg);
+transform-origin: 10% 90%;
+}
+ 
+.navbar-toggler.collapsed .top-bar {
+transform: rotate(0);
+}
+ 
+.navbar-toggler.collapsed .middle-bar {
+opacity: 1;
+}
+ 
+.navbar-toggler.collapsed .bottom-bar {
+transform: rotate(0);
+}
+
+.nav-info {
+margin-top: 4px;
+}
+ 
+.navbar-toggler:focus, .navbar-toggler:active, .navbar-toggler-icon:focus {
+outline: none;
+box-shadow: none;
+}
+
+.button-color {
+color: #fe0000;
+background-color: white;
+border-color: #fe0000;
+}
+
+.button-color:hover {
+color: white;
+background-color: #fe0000;
+}
+
+.la-titles {
+color: #fe0000;
+}
+
+.header-color {
+background-color: red;
+border-bottom-left-radius: 5px;
+border-bottom-right-radius: 5px;
+border-top-left-radius: 5px;
+border-top-right-radius: 5px;
+}
+
+.name-color {
+color: white;
+font-family: 'Yanone Kaffeesatz', sans-serif;
+font-size: 25px;
+text-align: center;
+}
+
+.name-color:hover {
+color: white;
+font-family: 'Yanone Kaffeesatz', sans-serif;
+font-size: 25px;
+text-align: center;
+}
+
+/*
+.card-color {
+background-color: #fe0000;
+border-bottom-width: 1px;
+border-left-width: 1px;
+border-right-width: 1px;
+border-top-width: 1px;
+border-bottom-left-radius: 5px;
+border-bottom-right-radius: 5px;
+border-top-left-radius: 5px;
+border-top-right-radius: 5px;
+}
+*/
+
+.card-border {
+border-color: #fe0000;
+border-bottom-width: 2px;
+border-left-width: 2px;
+border-right-width: 2px;
+border-top-width: 2px;
+}
+
+.text-color {
+color: #fe0000;
+}
+
+.color {
+background-color: white;
+border-color: white;
+}
+
+.item:hover {
+background-color: #fe0000;
+color: white;
+border-bottom-left-radius: 5px;
+border-bottom-right-radius: 5px;
+border-top-left-radius: 5px;
+border-top-right-radius: 5px;
+}
+
+.latitle {
+color: #fe0000;
+}
+
+
+/*
+.boxcolor:focus-within{
+background-color: #fe0000;
+color: white;
+}
+*/
+
+.boxcolor {
+border-color: #fe0000;
+border-bottom-width: 1px;
+border-left-width: 1px;
+border-right-width: 1px;
+border-top-width: 1px;   
+}
+
+.opcolor {
+background-color: #fe0000;
+color: white;
+}
+
+.opcolors {
+border-color: #fe0000;
+border-bottom-width: 1px;
+border-left-width: 1px;
+border-right-width: 1px;
+border-top-width: 1px;   
+}
+
+.form-control:focus {
+  border-color: #fe0000;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.btn:focus {
+border-color: #fe0000;
+-webkit-box-shadow: none;
+box-shadow: none;
+}
+
+.opcolors:focus {
+border-color: #fe0000;
+-webkit-box-shadow: none;
+box-shadow: none;
+}

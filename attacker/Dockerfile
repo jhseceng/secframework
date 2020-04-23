@@ -19,8 +19,8 @@ RUN set -ex \
     && wget https://raw.githubusercontent.com/jhseceng/secframework/master/payload/json-lib-2.4-jenkins-2.jar -O ~/json-lib-2.4-jenkins-2.jar -q --progress=bar:force:noscroll --show-progress \
     && wget https://raw.githubusercontent.com/jhseceng/secframework/master/payload/payload.jar -O ~/payload.jar -q --progress=bar:force:noscroll --show-progress \
     && wget https://raw.githubusercontent.com/jhseceng/secframework/master/payload/exploit.py -O ~/exploit.py -q --progress=bar:force:noscroll --show-progress  \
-    && wget https://raw.githubusercontent.com/jhseceng/secframework/master/attacker/auto-sploit.sh -O ~/auto-sploit.sh -q --progress=bar:force:noscroll --show-progress \
-    && wget https://raw.githubusercontent.com/jhseceng/secframework/master/attacker/app.py -O ~/app.py -q --progress=bar:force:noscroll --show-progress \
+    && wget https://raw.githubusercontent.com/jhseceng/secframework/master/payload/auto-sploit.sh -O ~/auto-sploit.sh -q --progress=bar:force:noscroll --show-progress \
+    && wget https://raw.githubusercontent.com/jhseceng/secframework/master/attacker/exp-server.py -O ~/exp-server.py -q --progress=bar:force:noscroll --show-progress \
     && wget https://raw.githubusercontent.com/jhseceng/secframework/master/attacker/run.sh -O ~/run.sh -q --progress=bar:force:noscroll --show-progress \
     && wget https://raw.githubusercontent.com/jhseceng/secframework/master/attacker/web.zip -O ~/web.zip -q --progress=bar:force:noscroll --show-progress
 
@@ -30,7 +30,7 @@ COPY app.py /root/app.py
 
 EXPOSE 5000 443
 
-RUN pip3 install requests Flask pexpect Flask-WTF
+RUN pip3 install requests Flask pexpect Flask-WTF python-nmap
 
 RUN cp /root/run.sh /usr/local/bin/run.sh
 #RUN cp exp-server.py /root/exp-server.py

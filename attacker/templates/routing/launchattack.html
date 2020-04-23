@@ -1,67 +1,184 @@
+
 {% extends "base.html" %}
 {% block title %}Lab Infrastructure {% endblock %}
 {% block content %}
-<div class="row" style="margin-top: 20px" xmlns="http://www.w3.org/1999/html">
-    <h1>Launching the Attack</h1>
-</div>
-<div class="row" style="margin-top: 20px">
-    <form method="POST" action="{{ url_for('launch_sploit') }}">
+<section class="card shadow p-3">
+<div class="card-body" style="width: auto">
+    <div  xmlns="http://www.w3.org/1999/html">
+        <h1 class="class-titles latitle">The Attack Sequence</h1>
+    </div>
+    
+     <div class="card-header header-color headersize" style="margin-top: 20px" id="headingOne">
+         <h5 class="mb-0">
+         <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+         Stage 1 - Discover Listening Services
+         </button>
+         </h5>
+      </div>
+      <div class="card collapse hide card-border shadow p-3" style="margin-top: 20px; margin-bottom: 20px" id="collapseOne">
+      <p>
+       One of the steps that generally precedes a network-based attack is port scanning, in which a hacker tries to discover which services are being offered in order to launch a more specific attack.  In this example we will run an nmap probe towards the AWS ALB that fronts our service and provides WAF protection.
+      </p>   
+      </div>
+       <div class="card collapse hide card-border shadow p-3" style="margin-top: 20px; margin-bottom: 20px" id="collapseOne">
+        <form style="margin-top: 15px" action="{{ url_for('launch_sploit') }}">
+            
+<!--
+             <div class="form-group" style="margin-left: 20px; margin-right: 20px">
+              <label for="attacker">IP4 Address:</label>
+               <input class="form-control boxcolor" id="attacker" name="attacker" type="text"
+                           value="86.144.52.130"></div>
+-->
+               
+<!--                <div class="form-group" style="margin-left: 20px; margin-right: 20px">-->
+<!--                    <label class="form-control-label form-control-md" for="target">ALB DNS Name:</label>-->
+<!--                    <input class="form-control boxcolor" id="target" name="target" type="text"-->
+<!--                           value="v5Jenkins-ALB-1508087328.eu-west-1.elb.amazonaws.com">-->
+<!--             </div>-->
 
-        <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Getting Started</legend>
             <div class="form-group">
-                <label class="form-control-label form-control-lg" for="attacker">IP4 Address</label>
-                <input class="form-control-label form-control-lg" id="attacker" name="attacker" type="text"
-                       value="34.246.4.180">
-            </div>
-            <div class="form-group">
-                <label class="form-control-label form-control-lg" for="target">ALB DNS Name</label>
-                <input class="form-control-label form-control-lg" id="target" name="target" type="text"
-                       value="Jenkins-ALB-462522413.eu-west-1.elb.amazonaws.com">
-            </div>
-        </fieldset>
-        <div class="form-group">
-            <input class="btn btn-outline-info launchbutton" onclick="submitlaunch()" id="submit" name="submit"
-                   value="Launch Attack">
-
-        </div>
-        <div id="successAlert" class="alert alert-success" role="alert" style="display: none;"></div>
-        <div id="errorAlert" class="alert alert-danger" role="alert" style="display: none;"></div>
-
-    </form>
-</div>
-<div class="row" style="margin-top:20px">
-    <div class="col-md-12">
-        <form id="formsendcmd" action="{{ url_for, 'send_cmd' }}" method="POST">
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <label class="input-group-text" form="inputGroupSelect01">Options</label>
-                </div>
-                <select class="custom-select" id="cmdtosend">
-                    <option selected>ls -al</option>
-                    <option value="ls">ls</option>
-                    <option value="ps -ef">ps -ef</option>
-                    <option value="netstat -an">netstat -an</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <input class="btn btn-outline-info sendbutton" onclick="submitsend()" id="submit" name="submit"
-                       value="Launch Attack">
+                 <button class="btn btn button-color sendbutton" style="margin-top: 5px; margin-left: 20px" id="collapseOnesubmit"
+                    >Run nmap
+                    </button>
             </div>
 
         </form>
+      </div>
+    <div class="card card collapse hide card-border shadow p-3" id="collapseOne">
+    <pre id="collapseOne_response">
+     
+    </pre>      
     </div>
-    <div>
-        <pre id="mydiv">
-		</pre>
+
+  <div class="card-header header-color headersize" style="margin-top: 20px" id="headingTwo">
+         <h5 class="mb-0">
+         <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+         Stage 2 - Reconnaissance
+         </button>
+         </h5>
     </div>
-</div>
+  <div class="card collapse hide card-border shadow p-3" style="margin-top: 20px; margin-bottom: 20px" id="collapseTwo"><p>If you are running a web server, it often shows the world what type of server it is, its version number, and the operating system. This information is available in header fields and can be acquired using a web browser to make a simple HTTP request to any web application. 
+ These HTTP response headers can provide valuable information that would allow an attacker to launch targeted attacks against your web server and version. If a particular web server version is known to be vulnerable to a specific exploit, the attacker would just need to use that exploit as part of their assault on the target web server.</p>   
+      </div>
+  <div class="card collapse hide card-border shadow p-3" style="margin-top: 20px; margin-bottom: 20px" id="collapseTwo">
+            <form id="formcollapseTwo" style="margin-top: 20px; margin-left: 20px; margin-right: 20px; margin-bottom: 20px">
+                <div class="input-group">
+<!--
+                    <div class="input-group-prepend">
+                        <label class="input-group-text opcolor"  form="inputGroupSelect01">Options</label>
+                    </div>
+-->
+<!--
+                    <select class="custom-select opcolors" id="cmdtosend">
+                        <option selected>ls -al</option>
+                        <option  value="ls">ls</option>
+                        <option  value="ps -ef">ps -ef</option>
+                        <option  value="netstat -an">netstat -an</option>
+                    </select>
+-->
+                </div>
+                <div class="form-group"> 
+                    <button class="btn btn button-color sendbutton" style="margin-top: 17px" id="collapseTwosubmit"
+                    >Fetch Headers
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="card card collapse hide card-border shadow p-3" id="collapseTwo">
+           <pre id="collapseTwo_response">  
+    </pre> 
+    </div>
+    <div class="card-header header-color headersize" style="margin-top: 20px" id="headingOne">
+         <h5 class="mb-0">
+         <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+         Stage 3 - Exploit
+         </button>
+         </h5>
+      </div>
+      <div class="card collapse hide card-border shadow p-3" style="margin-top: 20px; margin-bottom: 20px" id="collapseThree">
+      <p>
+       One of the steps that generally precedes a network-based attack is port scanning, in which a hacker tries to discover which services are being offered in order to launch a more specific attack.  In this example we will run an nmap probe towards the AWS ALB that fronts our service and provides WAF protection.
+      </p>   
+      </div>
+       <div class="card collapse hide card-border shadow p-3" style="margin-top: 20px; margin-bottom: 20px" id="collapseThree">
+        <form style="margin-top: 15px" action="{{ url_for('launch_sploit') }}">
+            
+<!--
+             <div class="form-group" style="margin-left: 20px; margin-right: 20px">
+              <label for="attacker">IP4 Address:</label>
+               <input class="form-control boxcolor" id="attacker" name="attacker" type="text"
+                           value="86.144.52.130"></div>
+-->
+               
+<!--                <div class="form-group" style="margin-left: 20px; margin-right: 20px">-->
+<!--                    <label class="form-control-label form-control-md" for="target">ALB DNS Name:</label>-->
+<!--                    <input class="form-control boxcolor" id="target" name="target" type="text"-->
+<!--                           value="v5Jenkins-ALB-1508087328.eu-west-1.elb.amazonaws.com">-->
+<!--             </div>-->
+
+            <div class="form-group">
+                 <button class="btn btn button-color sendbutton" style="margin-top: 5px; margin-left: 20px" id="collapseThreesubmit"
+                    >Send Exploit
+                    </button>
+            </div>
+            <div id="successAlert" class="alert alert-success" role="alert" style="display: none;"></div>
+            <div id="errorAlert" class="alert alert-danger" role="alert" style="display: none;"></div>
+        </form>
+      </div>
+    <div class="card card collapse hide card-border shadow p-3" id="collapseThree">
+    <pre id="collapseThree_response">
+     
+    </pre>      
+    </div>
+
+  <div class="card-header header-color headersize" style="margin-top: 20px" id="headingTwo">
+         <h5 class="mb-0">
+         <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+         Stage 4 - Lateral movement
+         </button>
+         </h5>
+    </div>
+  <div class="card collapse hide card-border shadow p-3" style="margin-top: 20px; margin-bottom: 20px" id="collapseFour"><p>Now run various commands to discover more about the host and gather information to extract.</p>
+      </div>
+  <div class="card collapse hide card-border shadow p-3" style="margin-top: 20px; margin-bottom: 20px" id="collapseFour">
+            <form id="formsendcmd" style="margin-top: 20px; margin-left: 20px; margin-right: 20px; margin-bottom: 20px">
+                <div class="input-group">
+
+                    <div class="input-group-prepend">
+                        <label class="input-group-text opcolor"  form="inputGroupSelect01">Options</label>
+                    </div>
+
+
+                    <select class="custom-select opcolors" id="cmdtosend">
+                        <option selected>ls -al</option>
+                        <option  value="ls">ls</option>
+                        <option  value="ps -ef">ps -ef</option>
+                        <option  value="netstat -an">netstat -an</option>
+                    </select>
+
+                </div>
+                <div class="form-group"> 
+                    <button class="btn btn button-color sendbutton" style="margin-top: 17px" id="collapseFoursubmit"
+                    >Execute Command
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="card card collapse hide card-border shadow p-3" id="collapseFour">
+           <pre id="collapseFour_response">  
+    </pre> 
+    </div>
+    </div>
+</section>
+
+    <div class="row" style="margin-top:20px">
+        <div id="mydiv"></div>
+    </div>
+
 {% endblock content %}
 {% block scriptblock %}
 
-
-<script src="/static/launchattack.js"></script>
-
-
+    <script src="/static/launchattack.js"></script>
 
 {% endblock scriptblock %}
+
