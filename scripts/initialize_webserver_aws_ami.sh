@@ -5,7 +5,6 @@ echo $REGION
 echo 'Configuring region'
 aws configure set region $REGION
 
-
 #installing from current directory 
 sudo yum update -y
 sudo yum install -y python3-pip python3 python3-setuptools build-essential libssl-dev libffi-dev git
