@@ -5,13 +5,11 @@ echo $REGION
 echo 'Configuring region'
 aws configure set region $REGION
 
-#aws Getting 
-echo 'Getting CID'
-cid=`aws ssm get-parameter --name AgentActivationKey --query 'Parameter.Value' --output text`
 
 #installing from current directory 
 sudo yum update -y
-sudo yum install -y docker python3-pip python3 python3-setuptools build-essential libssl-dev libffi-dev git
+sudo yum install -y python3-pip python3 python3-setuptools build-essential libssl-dev libffi-dev git
+sudo yum install -y docker
 sudo usermod -a -G docker ec2-user
 sudo chkconfig docker on
 sudo curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
