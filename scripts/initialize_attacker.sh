@@ -23,7 +23,7 @@ cd /var/tmp
 echo "version: '3'" > docker-compose.yml
 echo "services:" >> docker-compose.yml
 echo "  attacker:" >> docker-compose.yml
-echo "    image: jharris10/attacker" >> docker-compose.yml
+echo "    image: jharris10/attacker:v2" >> docker-compose.yml
 echo "    environment:" >> docker-compose.yml
 echo "      - ATTACKER=$ATTACKER" >> docker-compose.yml
 echo "      - VICTIM=$VICTIM">> docker-compose.yml
