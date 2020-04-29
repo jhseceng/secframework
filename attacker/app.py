@@ -8,16 +8,77 @@ import requests
 import json
 import nmap
 
+import boto3
+import time
+from datetime import datetime, timedelta
+
 attacker_ip = os.environ['ATTACKER']
 target_ip = os.environ['VICTIM']
+region = ['REGION']
 
 app = Flask(__name__)
-
+region = "eu-west-1"
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
 logger = logging.getLogger()
 
 
 app.config['SECRET_KEY'] = 'c27e5a04065046f45a88300d80baa8cd'
+
+def check_for_running_queries(log_group_name):
+    client = boto3.client('logs', region_name=region, verify=None)
+    res = client.describe_queries(
+        logGroupName=log_group_name,
+        status='Running')
+    if not res["queries"]:
+        return False
+    else:
+        return True
+
+@app.route("/vpclogs", methods=['POST'])
+def query_vpc_logs():
+
+    if request.is_json:
+        logger.info(request.data)
+        payload = request.get_json()
+        print(payload)
+        time_interval=payload.get('time_interval', '')
+        time_value=payload.get('time_value','')
+        log_group_name=payload.get('log_group_name', '')
+        query_string=payload.get('query_string', '')
+
+    _flow_logs = []
+    if time_interval == "hours":
+        last_time = int((datetime.today() - timedelta(hours=float(time_value))).timestamp())
+    elif time_interval == "minutes":
+        last_time = int((datetime.today() - timedelta(minutes=float(time_value))).timestamp())
+    elif time_interval == "seconds":
+        last_time = int((datetime.today() - timedelta(seconds=float(time_value))).timestamp())
+    else:
+        last_time = int((datetime.today() - timedelta(days=float(time_value))).timestamp())
+    print('last_time is {}'.format(last_time))
+    client = boto3.client('logs',region_name=region, verify=None)
+    try:
+        query = client.start_query(
+            logGroupName=log_group_name,
+            queryString=query_string,
+            startTime=int(datetime.today().timestamp()) - last_time,
+            endTime=int(datetime.now().timestamp()),
+            limit=5
+        )
+    except Exception as e:
+        print('Got Exception {}'.format(e))
+    print(query['queryId'])
+    while check_for_running_queries(log_group_name):
+        time.sleep(2)
+    _response = client.get_query_results(queryId=query['queryId'])
+    for _result in _response.get("results"):
+        _flow_logs.append(_result[1]["value"])
+    _flow_log_dict = {"logs": _flow_logs}
+
+    res = make_response(jsonify(
+        _flow_log_dict), 200)
+    res.headers['Content-type'] = 'application/json'
+    return res
 
 
 @app.route("/", methods=['GET'])
@@ -57,15 +118,62 @@ def nmap_host():
         return res
 
 
-@app.route("/gdquery", methods=['GET'])
+@app.route("/gdquery", methods=['POST'])
 def query_gd():
     if request.method == 'POST':
         if request.is_json:
             logger.info(request.data)
             payload = request.get_json()
-            print(payload)
-            print(type(payload))
-            events_of_interest = payload.get('events_of_interest', '')
+        events_of_interest = payload.get('events_of_interest')
+
+        client = boto3.client('guardduty')
+
+        # Find out if GuardDuty already enabled:
+        detectors_list = client.list_detectors()
+
+        if not detectors_list["DetectorIds"]:
+            print("GuardDuty is not enabled ... enabling GuardDuty on master account")
+            response = client.create_detector(Enable=True);
+            # Save DetectorID handler
+            DetectorId = response["DetectorId"]
+        else:
+            print("GuardDuty already enabled on account")
+            DetectorId = detectors_list['DetectorIds'][0]
+
+        # print all Detectorts
+        print("Detector lists: ")
+        for x in detectors_list["DetectorIds"]:
+            print(x, end=" ")
+
+        gd_findings = client.list_findings(
+            DetectorId=DetectorId
+        )
+
+        # print all findings
+        _print_finding = lambda DetectorId, FindingId: client.get_findings(
+            DetectorId=DetectorId,
+            FindingIds=[
+                FindingId,
+            ]
+        )
+
+        # keep findinds in a buffer - in case we'd like to do text manipulation later on
+        findings_buffer = []
+        # Print all findings in JSON format
+        for _find in gd_findings['FindingIds']:
+            _find = (_print_finding(DetectorId, _find))
+            if _find['Findings'][0]['Type'] in events_of_interest:
+                findings_buffer.append(_find['Findings'][0])
+
+        # print to terminal (comment out this line if the list is too long, use text file instead)
+        results = {"results":findings_buffer}
+
+        # print the count of findings for the given severity.
+        res = make_response(jsonify(
+            results), 200)
+        res.headers['Content-type'] = 'application/json'
+        print(res)
+        return res
 
 
 @app.route("/headers", methods=['POST'])
@@ -200,6 +308,28 @@ def launch_sploit():
             res.headers['Content-type'] = 'application/json'
             return res
             # return 'SUCCESS - auto-sploit launched!'
+
+
+@app.route("/investigate", methods=['GET'])
+def get_exploit_db():
+
+    data = '[i] Found (#1): /root/exploit-database/files_exploits.csv\n' \
+           '[i] To remove this message, please edit "/root/exploit-database/.searchsploit_rc" for "files_exploits.csv" (package_array: exploitdb)\n' \
+           '[i] Found (#1): /root/exploit-database/files_shellcodes.csv\n' \
+           '[i] To remove this message, please edit "/root/exploit-database/.searchsploit_rc" for "files_shellcodes.csv" (package_array: exploitdb)\n' \
+           '{\n' \
+           '"SEARCH": "Jenkins 2.32",\n' \
+           '"DB_PATH_EXPLOIT": "/root/exploit-database",\n' \
+           '"RESULTS_EXPLOIT": [\n' \
+           '{"Title":"CloudBees Jenkins 2.32.1 - Java Deserialization"","URL":"https://www.exploit-db.com/exploits/41965"}\n' \
+           '],\n' \
+           '"DB_PATH_SHELLCODE": "/root/exploit-database",\n' \
+           '"RESULTS_SHELLCODE": [	]\n' \
+           '}\n'
+    res = make_response(data)
+    res.headers['Content-type'] = 'text/plain'
+    return res
+
 
 
 @app.route("/send", methods=['POST'])
