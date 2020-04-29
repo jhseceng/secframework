@@ -2,13 +2,17 @@
 #
 # Example initialize_attacker -v VICTIM
 #
-while getopts 'v:' OPTION;
+while getopts 'v:r:' OPTION;
 do
   case "$OPTION" in
     v)
       VICTIM="$OPTARG"
       ;;
 
+    r)
+      REGION="$OPTARG"
+      ;;
+]
     *) echo "usage: $0 [-v]" >&2
        exit 1 ;;
   esac
@@ -25,6 +29,7 @@ echo "services:" >> docker-compose.yml
 echo "  attacker:" >> docker-compose.yml
 echo "    image: jharris10/attacker:v2" >> docker-compose.yml
 echo "    environment:" >> docker-compose.yml
+echo "      - REGION=$REGION" >> docker-compose.yml
 echo "      - ATTACKER=$ATTACKER" >> docker-compose.yml
 echo "      - VICTIM=$VICTIM">> docker-compose.yml
 echo "    ports:" >> docker-compose.yml

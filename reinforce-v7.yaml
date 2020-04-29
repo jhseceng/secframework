@@ -385,7 +385,6 @@ Resources:
           FromPort: '53'
           ToPort: '53'
           CidrIp: 0.0.0.0/0
-
   WebServerGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -402,8 +401,6 @@ Resources:
       MaxSize: '1'
       TargetGroupARNs:
         - !Ref 'PublicLoadBalancerTargetGroup'
-
-
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
@@ -497,8 +494,6 @@ Resources:
                   - ec2messages:GetMessages
                   - ec2messages:SendReply
                 Resource: '*'
-
-
   JenkinsBootstrapInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -665,19 +660,26 @@ Resources:
       KeyName: !Ref 'KeyPairName'
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref 'AttackerNetInt'
-          DeviceIndex: '0'
-
+          Devic
       UserData:
         Fn::Base64: !Sub |
           #! /bin/bash
           # version 2.0
+          # export account id and region on instance startup
           exec > /tmp/part-001.log 2>&1
+          cat > /etc/profile.d/load_env.sh << 'EOF'
+
+          export ATTACKER=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
+          export VICTIM=${PublicLoadBalancer.DNSName}
+          export REGION=${AWS::Region}
+
+          EOF
           sudo cd /var/tmp
           sudo wget -O initialize_attacker.sh https://raw.githubusercontent.com/jhseceng/secframework/master/scripts/initialize_attacker.sh
           sudo wget -O dns-exfil.sh https://raw.githubusercontent.com/jhseceng/secframework/master/scripts/dns-exfil.sh
           sudo chmod 755 initialize_attacker.sh
           sudo chmod 755 dns-exfil.sh
-          sudo bash ./initialize_attacker.sh -v ${PublicLoadBalancer.DNSName}
+          sudo bash ./initialize_attacker.sh -v ${PublicLoadBalancer.DNSName} -r ${AWS::Region}
       InstanceType: m4.large
       AvailabilityZone: !Select
         - '0'
@@ -1248,7 +1250,40 @@ Resources:
         Ref: PublicLoadBalancer
       WebACLId:
         Ref: wafrOwaspACL
-
+  Role:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: 'vpc-flow-logs.amazonaws.com'
+          Action: 'sts:AssumeRole'
+      Policies:
+      - PolicyName: 'flowlogs-policy'
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'logs:CreateLogStream'
+            - 'logs:PutLogEvents'
+            - 'logs:DescribeLogGroups'
+            - 'logs:DescribeLogStreams'
+            Resource: !GetAtt 'LogGroup.Arn'
+  LogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      RetentionInDays: '1'
+  FlowLog:
+    Type: 'AWS::EC2::FlowLog'
+    Properties:
+      DeliverLogsPermissionArn: !GetAtt 'Role.Arn'
+      LogGroupName: !Ref LogGroup
+      ResourceId: !Ref JenkinsVPC
+      ResourceType: 'VPC'
+      TrafficType: 'ACCEPT'
 Outputs:
   BackupLoadBalancerDNSName:
     Description: The DNSName of the backup load balancer
