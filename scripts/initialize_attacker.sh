@@ -12,7 +12,7 @@ do
     r)
       REGION="$OPTARG"
       ;;
-]
+
     *) echo "usage: $0 [-v]" >&2
        exit 1 ;;
   esac
