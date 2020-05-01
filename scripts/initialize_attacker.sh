@@ -2,7 +2,7 @@
 #
 # Example initialize_attacker -v VICTIM
 #
-while getopts 'v:r:' OPTION;
+while getopts 'v:r:l:' OPTION;
 do
   case "$OPTION" in
     v)
