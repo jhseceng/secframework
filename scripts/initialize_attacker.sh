@@ -13,6 +13,10 @@ do
       REGION="$OPTARG"
       ;;
 
+    l)
+      LOG_GROUP="$OPTARG"
+      ;;
+
     *) echo "usage: $0 [-v]" >&2
        exit 1 ;;
   esac
@@ -32,6 +36,7 @@ echo "    environment:" >> docker-compose.yml
 echo "      - REGION=$REGION" >> docker-compose.yml
 echo "      - ATTACKER=$ATTACKER" >> docker-compose.yml
 echo "      - VICTIM=$VICTIM">> docker-compose.yml
+echo "      - LOG_GROUP=$LOG_GROUP">> docker-compose.yml
 echo "    ports:" >> docker-compose.yml
 echo "      - \"443:443\"" >> docker-compose.yml
 echo "      - \"5000:5000\"" >> docker-compose.yml
