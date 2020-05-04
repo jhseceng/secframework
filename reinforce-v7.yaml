@@ -64,7 +64,7 @@ Parameters:
     ConstraintDescription: Alphanumeric characters only, maximum 10 characters
     AllowedPattern: ^[a-zA-z0-9]+$
     MaxLength: 10
-    Default: generic
+    Default: waf
   stackScope:
     Type: String
     Description: You can deploy this stack at a regional level, for regional WAF targets like Application Load Balancers, or for global targets, such as Amazon CloudFront distributions.
@@ -410,7 +410,7 @@ Resources:
       ImageId: !Ref 'LatestLinuxAMI'
       SecurityGroups:
         - !Ref 'JenkinsServerSecurityGroup'
-      IamInstanceProfile: !GetAtt JenkinsBootstrapInstanceProfile.Arn
+      IamInstanceProfile: !Ref JenkinsBootstrapInstanceProfile
       InstanceType: m4.large
       UserData:
         Fn::Base64: !Sub |
@@ -503,6 +503,14 @@ Resources:
     DependsOn:
       - JenkinsBootstrapRole
 
+  AttackerBootstrapInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref 'AttackerIAMRole'
+    DependsOn:
+      - AttackerIAMRole
 
 
   AttackerVPC:
@@ -635,16 +643,95 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Statement:
-          - Action:
-              - sts:AssumeRole
-            Principal:
-              Service:
-                - ec2.amazonaws.com
-            Effect: Allow
         Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
       Path: /
-      Policies: []
+      Policies:
+        - PolicyName: JenkinslBootstrapRolePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:SendCommand
+                  - guardduty:StartQuery
+                  - guardduty:GetFindings
+                  - guardduty:ListThreatIntelSets
+                  - ssm:ListDocumentVersions
+                  - ssm:DescribeDocument
+                  - guardduty:ListFindings
+                  - ssm:GetParameters
+                  - guardduty:GetDetector
+                  - ssm:GetParameter
+                  - ssm:StartSession
+                  - ssm:PutParameter
+                  - ssm:RemoveTagsFromResource
+                  - ssm:AddTagsToResource
+                  - ssm:ListTagsForResource
+                  - ssm:DescribeDocumentParameters
+                  - ssm:DescribeDocumentPermission
+                  - guardduty:ListFilters
+                  - guardduty:ListPublishingDestinations
+                  - guardduty:GetFilter
+                  - guardduty:ListTagsForResource
+                Resource:
+                  - arn:aws:guardduty:*:*:detector/*
+                  - arn:aws:ssm:*:*:document/*
+                  - arn:aws:ec2:*:*:instance/*
+                  - arn:aws:ssm:*:*:parameter/*
+                  - arn:aws:ssm:*:*:patchbaseline/*
+                  - arn:aws:ssm:*:*:maintenancewindow/*
+                  - arn:aws:ssm:*:*:managed-instance/*
+              - Effect: Allow
+                Action:
+                  - ssm:DescribeAssociation
+                  - ssm:GetDeployablePatchSnapshotForInstance
+                  - ssm:GetDocument
+                  - ssm:DescribeDocument
+                  - ssm:GetManifest
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                  - ssm:ListAssociations
+                  - ssm:ListInstanceAssociations
+                  - ssm:PutInventory
+                  - ssm:PutComplianceItems
+                  - ssm:PutConfigurePackageResult
+                  - ssm:UpdateAssociationStatus
+                  - ssm:UpdateInstanceAssociationStatus
+                  - ssm:UpdateInstanceInformation
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ssmmessages:CreateControlChannel
+                  - ssmmessages:CreateDataChannel
+                  - ssmmessages:OpenControlChannel
+                  - ssmmessages:OpenDataChannel
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ec2messages:AcknowledgeMessage
+                  - ec2messages:DeleteMessage
+                  - ec2messages:FailMessage
+                  - ec2messages:GetEndpoint
+                  - ec2messages:GetMessages
+                  - ec2messages:SendReply
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:Describe*
+                  - logs:Get*
+                  - logs:List*
+                  - logs:StartQuery
+                  - logs:StopQuery
+                  - logs:TestMetricFilter
+                  - logs:FilterLogEvents
+                Resource: '*'
+
+
   AttackerNetInt:
     DependsOn: AttackerVPC
     Type: AWS::EC2::NetworkInterface
@@ -660,7 +747,7 @@ Resources:
       KeyName: !Ref 'KeyPairName'
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref 'AttackerNetInt'
-          Devic
+          DeviceIndex: '0'
       UserData:
         Fn::Base64: !Sub |
           #! /bin/bash
@@ -672,18 +759,19 @@ Resources:
           export ATTACKER=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
           export VICTIM=${PublicLoadBalancer.DNSName}
           export REGION=${AWS::Region}
-
+          export LOG_GROUP=${LogGroup}
           EOF
           sudo cd /var/tmp
           sudo wget -O initialize_attacker.sh https://raw.githubusercontent.com/jhseceng/secframework/master/scripts/initialize_attacker.sh
           sudo wget -O dns-exfil.sh https://raw.githubusercontent.com/jhseceng/secframework/master/scripts/dns-exfil.sh
           sudo chmod 755 initialize_attacker.sh
           sudo chmod 755 dns-exfil.sh
-          sudo bash ./initialize_attacker.sh -v ${PublicLoadBalancer.DNSName} -r ${AWS::Region}
+          sudo bash ./initialize_attacker.sh -v ${PublicLoadBalancer.DNSName} -r ${AWS::Region} -l ${LogGroup}
       InstanceType: m4.large
       AvailabilityZone: !Select
         - '0'
         - !Ref 'AvailabilityZones'
+      IamInstanceProfile: !Ref AttackerBootstrapInstanceProfile
       ImageId: !FindInMap
         - AWSUbuntuRegionMap
         - !Ref 'AWS::Region'
@@ -1250,40 +1338,41 @@ Resources:
         Ref: PublicLoadBalancer
       WebACLId:
         Ref: wafrOwaspACL
-  Role:
+  FlowLogRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
-        - Effect: Allow
-          Principal:
-            Service: 'vpc-flow-logs.amazonaws.com'
-          Action: 'sts:AssumeRole'
-      Policies:
-      - PolicyName: 'flowlogs-policy'
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
           - Effect: Allow
-            Action:
-            - 'logs:CreateLogStream'
-            - 'logs:PutLogEvents'
-            - 'logs:DescribeLogGroups'
-            - 'logs:DescribeLogStreams'
-            Resource: !GetAtt 'LogGroup.Arn'
+            Principal:
+              Service: 'vpc-flow-logs.amazonaws.com'
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: 'flowlogs-policy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                  - 'logs:DescribeLogGroups'
+                  - 'logs:DescribeLogStreams'
+                Resource: !GetAtt 'LogGroup.Arn'
   LogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
+      LogGroupName: !Join ['', [!Ref 'AWS::StackName', '-vpc-flow-log']]
       RetentionInDays: '1'
   FlowLog:
     Type: 'AWS::EC2::FlowLog'
     Properties:
-      DeliverLogsPermissionArn: !GetAtt 'Role.Arn'
-      LogGroupName: !Ref LogGroup
+      DeliverLogsPermissionArn: !GetAtt 'FlowLogRole.Arn'
+      LogGroupName: !Join ['', [!Ref 'AWS::StackName', 'vpc-flow-log']]
       ResourceId: !Ref JenkinsVPC
       ResourceType: 'VPC'
-      TrafficType: 'ACCEPT'
+      TrafficType: 'ALL'
 Outputs:
   BackupLoadBalancerDNSName:
     Description: The DNSName of the backup load balancer
@@ -1292,3 +1381,7 @@ Outputs:
   AttackerIp:
     Description: Local IP for RedTeam Instance
     Value: !Ref 'AttackerEIP'
+
+  VPCFlowLogGroup:
+    Description: Name of VPC Flow log group
+    Value: !Ref LogGroup

@@ -14,7 +14,8 @@ from datetime import datetime, timedelta
 
 attacker_ip = os.environ['ATTACKER']
 target_ip = os.environ['VICTIM']
-region = ['REGION']
+region = os.environ['REGION']
+log_group = os.environ['LOG_GROUP']
 
 app = Flask(__name__)
 region = "eu-west-1"
@@ -24,57 +25,101 @@ logger = logging.getLogger()
 
 app.config['SECRET_KEY'] = 'c27e5a04065046f45a88300d80baa8cd'
 
-def check_for_running_queries(log_group_name):
-    client = boto3.client('logs', region_name=region, verify=None)
-    res = client.describe_queries(
-        logGroupName=log_group_name,
-        status='Running')
-    if not res["queries"]:
-        return False
-    else:
-        return True
+@app.route("/installfalcon", methods=['POST'])
 
-@app.route("/vpclogs", methods=['POST'])
-def query_vpc_logs():
-
+def run_install_package():
     if request.is_json:
         logger.info(request.data)
         payload = request.get_json()
-        print(payload)
+
+        package_name = payload.get('package_name')
+        action = payload.get('action')
+        instance_ids = payload.get('instance_ids')
+        document_name = payload.get('document_name')
+    parameters = {
+        'action': [action],
+        'installationType': ['Uninstall and reinstall'],
+        'name': [package_name]
+        # 'version': ['']
+    }
+    client = boto3.client('ssm')
+    try:
+        response = client.send_command(
+            InstanceIds=instance_ids,
+            DocumentName=document_name,
+            TimeoutSeconds=300,
+            Comment='Install package',
+            Parameters=parameters
+        )
+        n = 6
+        while n > 0:
+            if response.get('Command'):
+                cmd_status = client.list_commands(CommandId=response['Command']['CommandId'])
+                cmd_status = cmd_status['Commands'][0]['Status']
+                if cmd_status == 'Pending' or cmd_status == 'InProgress':
+                    time.sleep(5)
+                    # Wait up to 30 secs for response
+                    n -= 1
+                else:
+                    break
+
+        if cmd_status == 'Success':
+            msg = "Action: " + action + " Falcon: Success"
+        else:
+            msg = "Action: " + action + " Falcon: Failure"
+        data = {"Result": msg}
+        res = make_response(jsonify(
+            data), 200)
+        res.headers['Content-type'] = 'application/json'
+    except Exception as e:
+        print('Got Exception {}'.format(e))
+        data = {"Result": "Request format not json"}
+    res = make_response(jsonify(
+        data), 200)
+    res.headers['Content-type'] = 'application/json'
+    return res
+
+
+@app.route("/vpclogs", methods=['POST'])
+def query_vpc_logs():
+    _flow_logs = []
+    if request.is_json:
+        logger.info(request.data)
+        payload = request.get_json()
         time_interval=payload.get('time_interval', '')
-        time_value=payload.get('time_value','')
+        time_value=float(payload.get('time_value',''))
         log_group_name=payload.get('log_group_name', '')
         query_string=payload.get('query_string', '')
 
-    _flow_logs = []
-    if time_interval == "hours":
-        last_time = int((datetime.today() - timedelta(hours=float(time_value))).timestamp())
-    elif time_interval == "minutes":
-        last_time = int((datetime.today() - timedelta(minutes=float(time_value))).timestamp())
-    elif time_interval == "seconds":
-        last_time = int((datetime.today() - timedelta(seconds=float(time_value))).timestamp())
+        if time_interval == "hours":
+            last_time = int((datetime.today() - timedelta(hours=float(time_value))).timestamp())
+        elif time_interval == "minutes":
+            last_time = int((datetime.today() - timedelta(minutes=float(time_value))).timestamp())
+        elif time_interval == "seconds":
+            last_time = int((datetime.today() - timedelta(seconds=float(time_value))).timestamp())
+        else:
+            last_time = int((datetime.today() - timedelta(days=float(time_value))).timestamp())
+        print('last_time is {}'.format(last_time))
+        client = boto3.client('logs', region_name=region, verify=None)
+        try:
+            query = client.start_query(
+                logGroupName=log_group_name,
+                queryString=query_string,
+                startTime=int(datetime.today().timestamp()) - last_time,
+                endTime=int(datetime.now().timestamp()),
+                limit=5
+            )
+            while check_for_running_queries(log_group_name):
+                time.sleep(2)
+                _response = client.get_query_results(queryId=query['queryId'])
+                for _result in _response.get("results"):
+                    _flow_logs.append(_result[1]["value"])
+                _flow_log_dict = {"logs": _flow_logs}
+        except Exception as e:
+            print('Got Exception {}'.format(e))
+            print(query['queryId'])
     else:
-        last_time = int((datetime.today() - timedelta(days=float(time_value))).timestamp())
-    print('last_time is {}'.format(last_time))
-    client = boto3.client('logs',region_name=region, verify=None)
-    try:
-        query = client.start_query(
-            logGroupName=log_group_name,
-            queryString=query_string,
-            startTime=int(datetime.today().timestamp()) - last_time,
-            endTime=int(datetime.now().timestamp()),
-            limit=5
-        )
-    except Exception as e:
-        print('Got Exception {}'.format(e))
-    print(query['queryId'])
-    while check_for_running_queries(log_group_name):
-        time.sleep(2)
-    _response = client.get_query_results(queryId=query['queryId'])
-    for _result in _response.get("results"):
-        _flow_logs.append(_result[1]["value"])
-    _flow_log_dict = {"logs": _flow_logs}
-
+        _flow_log_dict = {"logs": "unexpected-request-format"}
     res = make_response(jsonify(
         _flow_log_dict), 200)
     res.headers['Content-type'] = 'application/json'
@@ -203,10 +248,13 @@ def http_headers():
     return res
 
 
-
+@app.route("/phase2", methods=['GET'])
+def launch_phase2():
+    if request.method == 'GET':
+        return render_template('routing/phase2.html', log_group=log_group)
 
 @app.route("/launch", methods=['GET', 'POST'])
-def launch_sploit():
+def launch_phase1():
     """
     Accepts a JSON payload with the following structure:
     {
@@ -218,8 +266,9 @@ def launch_sploit():
     :return: Simple String response for now
     """
 
+
     if request.method == 'GET':
-        return render_template('routing/launchattack.html')
+        return render_template('routing/phase1.html', log_group=log_group)
 
     if request.method == 'POST':
         language = request.form.get('attackerIp')
@@ -449,3 +498,14 @@ def _launch_listener():
                 return False
             app.config['listener'] = listener
             return True
+
+
+def check_for_running_queries(log_group_name):
+    client = boto3.client('logs', region_name=region, verify=None)
+    res = client.describe_queries(
+        logGroupName=log_group_name,
+        status='Running')
+    if not res["queries"]:
+        return False
+    else:
+        return True
