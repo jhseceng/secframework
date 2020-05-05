@@ -65,11 +65,19 @@ function submitsend() {
        } else throw new Error(`Unsupported response content-type: ${contentType}`);
    }
 
-   let commandselected = $('#cmdtosend').val()
+   let commandselected = ''
+   if (document.getElementById('disabledFieldsetCheck').checked == true){
+       commandselected = $('#customCommandInput').val()
+   }
+   else
+       {
+       commandselected = $('#cmdtosend').val()
+   }
+
    let entry = {
        cli: commandselected
    };
-   val = JSON.stringify(entry)
+   let val = JSON.stringify(entry)
    fetch('/send', {
        method: 'POST',
        body: JSON.stringify(entry),
@@ -136,3 +144,40 @@ async function getVpcFlowasync () {
         console.log('error in fetching posts')
     }
 })
+
+document.getElementById("queryGdSubmit").addEventListener("click",
+async function queryGuardDutyasync () {
+     event.preventDefault();
+     let gdEventsToFilter = $('#guardDutyEventsSelect').val();
+     let payload = {
+        events_of_interest: gdEventsToFilter
+    };
+     try {
+         const response = await fetch('/gdquery',
+             {
+                 method: 'POST',
+                 cache: "no-cache",
+                 body: JSON.stringify(payload),
+                 headers: new Headers
+                 ({
+                     "content-type": "application/json"
+                 })
+             })
+         await response.json()
+             .then((res) => {
+                 return res.results;
+             })
+             .then((data) => {
+                 for (index = 0; index < data.length; ++index) {
+                        datastr = JSON.stringify(data[index])
+               jsonView.format(datastr, '.root');
+             }})
+     }
+     catch {
+         console.log('error in fetching posts')
+     }
+
+})
+
+
+

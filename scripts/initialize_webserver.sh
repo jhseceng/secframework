@@ -21,13 +21,17 @@ apt install docker.io python3-pip build-essential libssl-dev libffi-dev -y --for
 cd /home/ubuntu || exit 1
 sudo apt install python-pip -y --force-yes
 sudo pip install awscli
-sudo aws s3 ls
-sudo aws s3 cp s3://"$S3BUCKET"/"$FILENAME" /home/ubuntu
-sudo dpkg -i "$FILENAME"
-sudo apt install -f -y
-sudo dpkg -i "$FILENAME"
-sudo /opt/CrowdStrike/falconctl -s --cid=$CID
-sudo systemctl start falcon-sensor
+#
+# Optional install of CS agent from S3 bucket
+#
+#sudo aws s3 ls
+#sudo aws s3 cp s3://"$S3BUCKET"/"$FILENAME" /home/ubuntu
+#sudo apt-get install libnl-3-200 libnl-genl-3-200 -y
+#sudo dpkg -i "$FILENAME"
+#sudo /opt/CrowdStrike/falconctl -s --cid=$CID
+#sudo systemctl start falcon-sensor
+#
+#
 pip3 install docker-compose
 cd /var/tmp || exit 1
 echo "version: '3'" > docker-compose.yml

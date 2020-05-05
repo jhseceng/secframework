@@ -1,3 +1,30 @@
+document.getElementById("nmapsubmit").addEventListener("click",
+async function fetchAsync () {
+     event.preventDefault();
+//    let attacker = document.getElementById('attacker');
+    let payload = {
+        dummy: 'not-required'
+    };
+    let response = await fetch('/nmap',
+        {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            cache: "no-cache",
+            headers: new Headers
+            ({
+                "content-type": "application/json"
+            })
+        })
+        await response.json()
+        .then(data => {
+            console.log(data);
+            string = JSON.stringify(data, undefined, 2);
+            $('#nmap_response').html(string)
+        })
+
+    .catch(reason => console.log(reason.message))
+})
+
 document.getElementById("Investigatesubmit").addEventListener("click",
 async function investigateasync () {
     event.preventDefault();
@@ -54,18 +81,18 @@ async function fetchAsync () {
     .catch(reason => console.log(reason.message))
 })
 
-document.getElementById("phase2submit").addEventListener("click",
-function startPhase2 () {
-    $('.collapse').collapse("hide")
-    $('#successAlert').hidden
-    $('#errorAlert').hidden
-    $('#collapsExploit3').collapse("hide")
-    $('#collapseLateral3').collapse("hide")
-    $('#Exploit_response').html("")
-    $('.multi-collapse4').collapse("show")
-
-})
-
-document.getElementById("phase1-control").addEventListener("click", function showsection1() {
-    $('#collapse-section1')[0].style.visibility="visible"
-})
+// document.getElementById("phase2submit").addEventListener("click",
+// function startPhase2 () {
+//     $('.collapse').collapse("hide")
+//     $('#successAlert').hidden
+//     $('#errorAlert').hidden
+//     $('#collapsExploit3').collapse("hide")
+//     $('#collapseLateral3').collapse("hide")
+//     $('#Exploit_response').html("")
+//     $('.multi-collapse4').collapse("show")
+//
+// })
+//
+// document.getElementById("phase1-control").addEventListener("click", function showsection1() {
+//     $('#collapse-section1')[0].style.visibility="visible"
+// })

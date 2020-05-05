@@ -30,7 +30,7 @@ COPY app.py /root/app.py
 
 EXPOSE 5000 443
 
-RUN pip3 install requests Flask pexpect Flask-WTF python-nmap
+RUN pip3 install requests Flask pexpect Flask-WTF python-nmap boto3
 
 RUN cp /root/run.sh /usr/local/bin/run.sh
 #RUN cp exp-server.py /root/exp-server.py

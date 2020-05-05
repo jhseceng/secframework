@@ -17,6 +17,16 @@ target_ip = os.environ['VICTIM']
 region = os.environ['REGION']
 log_group = os.environ['LOG_GROUP']
 
+gd_events_of_interest = ['Recon:EC2/PortProbeUnprotectedPort',
+                         'Recon:EC2/Portscan',
+                         'CryptoCurrency:EC2/BitcoinTool.B!DNS',
+                         'UnauthorizedAccess:EC2/SSHBruteForce',
+                         ]
+
+
+client = boto3.client('ssm', region_name=region)
+ec2_client=boto3.client('ec2', region_name=region)
+
 app = Flask(__name__)
 region = "eu-west-1"
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
@@ -42,7 +52,7 @@ def run_install_package():
         'name': [package_name]
         # 'version': ['']
     }
-    client = boto3.client('ssm')
+
     try:
         response = client.send_command(
             InstanceIds=instance_ids,
@@ -154,11 +164,15 @@ def vulnerability_info():
 def nmap_host():
     if request.method == 'POST':
         # target_ip = request.form.get('target')
+        try:
+            nm = nmap.PortScanner()
+            scan_res = nm.scan(target_ip, arguments='-Pn -p80,443')
+            result = {"Success":scan_res}
+        except Exception as e:
+            result={"Error":"nmap scan failed"}
 
-        nm = nmap.PortScanner()
-        scan_res = nm.scan(target_ip, arguments='-Pn -p80,443')
         res = make_response(jsonify(
-            scan_res), 200)
+            result), 200)
         res.headers['Content-type'] = 'application/json'
         return res
 
@@ -171,14 +185,14 @@ def query_gd():
             payload = request.get_json()
         events_of_interest = payload.get('events_of_interest')
 
-        client = boto3.client('guardduty')
+        gd_client = boto3.client('guardduty', region_name=region)
 
         # Find out if GuardDuty already enabled:
-        detectors_list = client.list_detectors()
+        detectors_list = gd_client.list_detectors()
 
         if not detectors_list["DetectorIds"]:
             print("GuardDuty is not enabled ... enabling GuardDuty on master account")
-            response = client.create_detector(Enable=True);
+            response = gd_client.create_detector(Enable=True);
             # Save DetectorID handler
             DetectorId = response["DetectorId"]
         else:
@@ -190,12 +204,12 @@ def query_gd():
         for x in detectors_list["DetectorIds"]:
             print(x, end=" ")
 
-        gd_findings = client.list_findings(
+        gd_findings = gd_client.list_findings(
             DetectorId=DetectorId
         )
 
         # print all findings
-        _print_finding = lambda DetectorId, FindingId: client.get_findings(
+        _print_finding = lambda DetectorId, FindingId: gd_client.get_findings(
             DetectorId=DetectorId,
             FindingIds=[
                 FindingId,
@@ -211,7 +225,7 @@ def query_gd():
                 findings_buffer.append(_find['Findings'][0])
 
         # print to terminal (comment out this line if the list is too long, use text file instead)
-        results = {"results":findings_buffer}
+        results = {"results": findings_buffer}
 
         # print the count of findings for the given severity.
         res = make_response(jsonify(
@@ -248,10 +262,19 @@ def http_headers():
     return res
 
 
+@app.route("/test", methods=['GET'])
+def display_test():
+    managed_instances = get_managed_instances()
+    return render_template('routing/test.html', managed_instances=managed_instances)
+
+
 @app.route("/phase2", methods=['GET'])
 def launch_phase2():
     if request.method == 'GET':
-        return render_template('routing/phase2.html', log_group=log_group)
+        managed_instances = get_managed_instances()
+        return render_template('routing/phase2.html', log_group=log_group, attacker_ip=attacker_ip,
+                               managed_instances=managed_instances, gd_events_of_interest=gd_events_of_interest)
+
 
 @app.route("/launch", methods=['GET', 'POST'])
 def launch_phase1():
@@ -266,9 +289,11 @@ def launch_phase1():
     :return: Simple String response for now
     """
 
+    managed_instances = get_managed_instances()
 
     if request.method == 'GET':
-        return render_template('routing/phase1.html', log_group=log_group)
+        return render_template('routing/phase1.html', log_group=log_group, attacker_ip=attacker_ip,
+                               managed_instances=managed_instances, gd_events_of_interest=gd_events_of_interest, target_ip=target_ip)
 
     if request.method == 'POST':
         language = request.form.get('attackerIp')
@@ -362,19 +387,26 @@ def launch_phase1():
 @app.route("/investigate", methods=['GET'])
 def get_exploit_db():
 
-    data = '[i] Found (#1): /root/exploit-database/files_exploits.csv\n' \
-           '[i] To remove this message, please edit "/root/exploit-database/.searchsploit_rc" for "files_exploits.csv" (package_array: exploitdb)\n' \
-           '[i] Found (#1): /root/exploit-database/files_shellcodes.csv\n' \
-           '[i] To remove this message, please edit "/root/exploit-database/.searchsploit_rc" for "files_shellcodes.csv" (package_array: exploitdb)\n' \
-           '{\n' \
-           '"SEARCH": "Jenkins 2.32",\n' \
-           '"DB_PATH_EXPLOIT": "/root/exploit-database",\n' \
-           '"RESULTS_EXPLOIT": [\n' \
-           '{"Title":"CloudBees Jenkins 2.32.1 - Java Deserialization"","URL":"https://www.exploit-db.com/exploits/41965"}\n' \
-           '],\n' \
-           '"DB_PATH_SHELLCODE": "/root/exploit-database",\n' \
-           '"RESULTS_SHELLCODE": [	]\n' \
-           '}\n'
+    data = 'Source: https://blogs.securiteam.com/index.php/archives/3171\n\n' \
+           'Vulnerability Details\n\n' \
+           'Jenkins is vulnerable to a Java deserialization vulnerability. \n' \
+           'In order to trigger the vulnerability two requests need to be sent.\n' \
+           'The vulnerability can be found in the implementation of a bidirectional communication channel \n' \
+           '(over HTTP) which accepts commands. The first request starts a session for the bi-directional \n' \
+           'channel and is used for “downloading” data from the server. The HTTP header “Session” is the \n' \
+           'identifier for the channel. \n\n' \
+           'The HTTP header “Side” specifies the “downloading/uploading” direction. The second request is the \n' \
+           'sending component of the bidirectional channel. The first requests is blocked until the second \n' \
+           'request is sent. The request for a bidirectional channel is matched by the “Session” HTTP header \n' \
+           ' which is just a UUID.\n\n' \
+           'Proof of Concept\n\n' \
+           'In order to exploit the vulnerability, an attacker needs to create a serialized payload with \nthe command' \
+           'to execute by running the payload.jar script. The second step is to change python script \n' \
+           'jenkins_poc1.py: \n\t- Adjust target url in URL variable\n\t' \
+           '- Change file to open in line \n\t“FILE_SER = open(“jenkins_poc1.ser”, “rb”).read()” to your payload file.' \
+           '\n\n' \
+           'https://github.com/offensive-security/exploitdb-bin-sploits/raw/master/bin-sploits/41965.zip'
+
     res = make_response(data)
     res.headers['Content-type'] = 'text/plain'
     return res
@@ -501,11 +533,24 @@ def _launch_listener():
 
 
 def check_for_running_queries(log_group_name):
-    client = boto3.client('logs', region_name=region, verify=None)
-    res = client.describe_queries(
+    logs_client = boto3.client('logs', region_name=region, verify=None)
+    res = logs_client.describe_queries(
         logGroupName=log_group_name,
         status='Running')
     if not res["queries"]:
         return False
     else:
         return True
+
+
+def get_managed_instances():
+    # Return list of dicts
+    managed_instance_list = []
+    filter_online = [{'Key': 'PingStatus', 'Values': ['Online', ]}, ]
+    filter_crwd_managed = [{'Key': 'tag-key', 'Values': ['CRWD_MANAGED']}, ]
+    response = client.describe_instance_information(Filters=filter_online)
+    if response.get('InstanceInformationList'):
+        for instance in response['InstanceInformationList']:
+            # managed_instance_list.append({instance['InstanceId']: instance['ComputerName']})
+            managed_instance_list.append(instance['InstanceId'])
+    return managed_instance_list

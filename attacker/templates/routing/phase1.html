@@ -1,14 +1,19 @@
 {% extends "base.html" %}
 {% block title %}Launch attack {% endblock %}
 {% block content %}
-<section class="card shadow p-3">
+<section class="card shadow p-3" id="collapse-section1" style="visibility: visible">
     <div class="card-body" style="width: auto">
+        <div class="header-color name-color">
+            <a class="header-color name-color" href="{{ url_for('launch_phase1') }}">Stage 1 - Without Falcon
+                Protection</a><br>
+            <a class="header-color name-color" href="{{ url_for('launch_phase2') }}">Stage 2 - With Falcon
+                Protection</a><br>
+        </div>
         <div xmlns="http://www.w3.org/1999/html">
             <h1 class="class-titles latitle">The Attack Sequence</h1>
         </div>
 
-        <!--       Stage 1-->
-
+        <!--Stage 1-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingNmap">
             <h5 class="mb-0">
                 <button type="button" class="btn btn-link name-color" data-toggle="collapse"
@@ -38,13 +43,15 @@
                 </div>
             </form>
         </div>
-        <div class="card collapse multi-collapse hide card-border shadow p-3" id="collapsenmap3">
-            <pre id="nmap_response">
-    </pre>
+        <div class="card collapse multi-collapse hide card-border shadow p-3" id="collapsenmap3"
+             style="visibility: hidden">
+
+        </div>
+        <div class="card collapse  multi-collapse card-border shadow p-3">
+            <pre id="nmap_response"></pre>
         </div>
 
-
-        <!--       Stage 2-->
+        <!--Stage 2-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingHeadings">
             <h5 class="mb-0">
                 <button type="button" class="btn btn-link  name-color" data-toggle="collapse"
@@ -63,7 +70,8 @@
             These HTTP response headers can provide valuable information that would allow an attacker to launch targeted
             attacks against your web server and version. If a particular web server version is known to be vulnerable to
             a specific exploit, the attacker would just need to use that exploit as part of their assault on the target
-            web server.</p>
+            web server.</p><b>
+            <a href="http://{{target_ip}}" target="_blank">The Jenkins server is here.</a></b>
         </div>
         <div class="card collapse multi-collapse2 hide card-border shadow p-3"
              style="margin-top: 20px; margin-bottom: 20px"
@@ -78,25 +86,26 @@
                 </div>
             </form>
         </div>
-        <div class="card collapse multi-collapse2 hide card-border shadow p-3">
+        <div class="card collapse multi-collapse2 hide card-border shadow p-3" style="visibility: hidden"
+             id="headings_output">
             <pre id="headers_response">
             </pre>
         </div>
 
 
-        <!--       Stage 3-->
+        <!--Stage 3-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingInvestigate">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target=".multi-collapse3"
                         aria-expanded="false"
-                        aria-controls="#collapsInvestigate1 #collapsInvestigate2 #collapsInvestigate3">
+                        aria-controls="#collapseInvestigate1 #collapseInvestigate2 #collapseInvestigate3">
                     Stage 3 - Investigate
                 </button>
             </h5>
         </div>
         <div class="card collapse multi-collapse3 hide card-border shadow p-3"
              style="margin-top: 20px; margin-bottom: 20px"
-             id="collapsInvestigate1">
+             id="collapseInvestigate1">
             <p>
                 searchsploit jenkins | grep 2.23 <br>
                 and then: cat /usr/share/exploitdb/exploits/java/dos/41965.txt<br>
@@ -105,7 +114,7 @@
         </div>
         <div class="card collapse multi-collapse3 hide card-border shadow p-3"
              style="margin-top: 20px; margin-bottom: 20px"
-             id="collapsInvestigate2">
+             id="collapseInvestigate2">
             <form style="margin-top: 15px">
                 <div class="form-group">
                     <button class="btn btn button-color sendbutton" style="margin-top: 5px; margin-left: 20px"
@@ -115,17 +124,15 @@
                 </div>
             </form>
         </div>
-        <div class="card collapse multi-collapse3 hide card-border shadow p-3 collapseInvestigate-output"
-             id="collapsInvestigate3"
-             style="visibility: collapse">
+        <div class="card collapse multi-collapse3 hide card-border shadow p-3 Investigate-output"
+             id="collapseInvestigate3"
+             style="margin-top: 20px; margin-bottom: 20px; visibility: hidden">
     <pre id="Investigate_response">
 
     </pre>
         </div>
 
-
-        <!-- Stage 4       -->
-
+        <!--Stage 4-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingExploit">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target=".multi-collapse4"
@@ -167,8 +174,7 @@
     </pre>
         </div>
 
-        <!--       Stage 5-->
-
+        <!--Stage 5-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingLateral">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target=".multi-collapse5"
@@ -185,37 +191,56 @@
         <div class="card collapse multi-collapse5 hide card-border shadow p-3"
              style="margin-top: 20px; margin-bottom: 20px"
              id="collapseLateral2">
-            <form id="formsendcmd" style="margin-top: 20px; margin-left: 20px; margin-right: 20px; margin-bottom: 20px">
-                <div class="input-group">
-
-
-                    <div class="input-group-prepend">
-                        <label class="input-group-text opcolor" form="inputGroupSelect01">Options</label>
-                    </div>
-
-
-                    <select class="custom-select boxcolor" id="cmdtosend">
-                        <option selected>ls -al</option>
-                        <option value="ls">ls</option>
-                        <option value="ps -ef">ps -ef</option>
-                        <option value="netstat -an">netstat -an</option>
-                    </select>
-
-                </div>
-                <div class="form-group">
-                    <button class="btn btn button-color sendbutton" style="margin-top: 17px" id="send_submit"
+            <div>
+                <form id="formsendcmd" style="margin-top: 20px; margin-left: 20px; margin-right: 20px; margin-bottom: 20px">
+                    <fieldset>
+                        <div class="form-group">
+                            <label for="customCommandInput">Enter Custom Command</label>
+                            <input type="text" id="customCommandInput" class="form-control"
+                                   placeholder="Custom Command">
+                        </div>
+                        <div class="form-group">
+                            <label for="cmdtosend">Select Command</label>
+                            <select class="custom-select boxcolor" id="cmdtosend">
+                                <option selected>ls -al</option>
+                                <option value="ls">ls</option>
+                                <option value="ps -ef">ps -ef</option>
+                                <option value="netstat -an">netstat -an</option>
+                                <option value="whoami">whoami</option>
+                                <option value="dig GuardDutyC2ActivityB.com any">Test GuardDutyC2Activity</option>
+                                <option value="curl -s http://xmr.pool.minergate.com/dhdhjkhdjkhdjkhajkhdjskahhjkhjkahdsjkakjasdhkjahdjk > /dev/null">
+                                    Test GuardDuty Mining
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="disabledFieldsetCheck">
+                            <label class="form-check-label" for="disabledFieldsetCheck">
+                                Use custom command
+                            </label>
+                        </div>
+                        <button class="btn btn button-color sendbutton" style="margin-top: 17px" id="send_submit"
                     >Run Command
                     </button>
-                    <div id="errorAlertcmd" class="alert alert-danger" role="alert" style="display: none;"></div>
-                </div>
-            </form>
+                    </fieldset>
+                </form>
+            </div>
+<!--            <form id="formsendcmd" style="margin-top: 20px; margin-left: 20px; margin-right: 20px; margin-bottom: 20px">-->
+<!--                <div class="input-group">-->
+<!--                    <div class="input-group-prepend">-->
+<!--                        <label class="input-group-text opcolor" form="inputGroupSelect01">Options</label>-->
+<!--                    </div>-->
+
+<!--                </div>-->
+
+<!--            </form>-->
         </div>
         <div class="card collapse multi-collapse5 hide card-border shadow p-3" id="collapseLateral3">
            <pre id="lateral_response">
     </pre>
         </div>
 
-        <!--         Stage 6-->
+        <!--Stage 6-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingQuery">
             <h5 class="mb-0">
                 <button type="button" class="btn btn-link name-color" data-toggle="collapse"
@@ -272,7 +297,7 @@
                         <h6 class="la-titles">Filter String:</h6>
                     </label>
                     <input type="text" class="form-control boxcolor" id="query_string"
-                           value='filter srcAddr="86.144.52.130"'>
+                           value='filter srcAddr="{{attacker_ip}}"'>
                 </div>
                 <div>
                     <button class="btn btn button-color sendbutton" style="margin-top: 10px; margin-bottom: 10px"
@@ -285,13 +310,12 @@
             </form>
 
         </div>
-        {# new card#}
         <div class="card shadow collapse multi-collapse6 card-border p-3" style="visibility: hidden" id="query_vpc_out">
                        <pre id="vpcquery_response">
     </pre>
         </div>
 
-        <!--Stage 7      -->
+        <!--Stage 7-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingQuerylogs">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target=".multi-collapse7"
@@ -301,84 +325,41 @@
             </h5>
         </div>
 
+        <div class="card collapse multi-collapse7 card-border shadow p-3" style="margin-top: 20px"
+             id="collapsQuerylogs1">
+            <div class="row">
+                <form class="form-group col-md-6">
+                    <label>
+                        <h6 class="la-titles">Select Guard Duty Event Types</h6>
+                    </label>
+                    <select name="my" class="custom-select boxcolor" id="guardDutyEventsSelect" multiple required>
+                        {% for event_name in gd_events_of_interest %}
+                        <option value="{{event_name}}">{{event_name}}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+                </form>
+            </div>
+        </div>
+
         <div class="card card collapse multi-collapse7 card-border shadow p-3 treebody"
              style="margin-top: 20px; margin-bottom: 20px">
-            <button class="btn btn button-color sendbutton col-md-1" id="queryFlowLog">Submit
+            <button class="btn btn button-color sendbutton col-md-1" id="queryGdSubmit">Submit
             </button>
             <div class="root"></div>
         </div>
-        <!--Stage 8      -->
-        <div class="card-header header-color headersize" style="margin-top: 20px" id="headinginstallfal">
-            <h5 class="mb-0">
-                <button type="button" class="btn btn-link name-color" data-toggle="collapse"
-                        data-target=".multi-collapse8"
-                        aria-expanded="true"
-                        aria-controls="#collapseinstallfal1 #collapseinstallfal2 #collapseinstallfal3">
-                    Stage 8 - Install falcon
-                </button>
-            </h5>
-        </div>
-        <div class="card collapse multi-collapse8 card-border shadow p-3" style="margin-top: 20px"
-             id="collapseinstallfal1">
-            <div class="row">
-                <form class="form-group col-md-6">
-                    <label>
-                        <h6 class="la-titles">package_name</h6>
-                    </label>
-                    <input type="text" class="form-control boxcolor" id="package_name" value="FalconSensor">
-                </form>
-                <form class="form-group col-md-6">
-                    <label>
-                        <h6 class="la-titles">Action</h6>
-                    </label>
-                    <select class="form-control units boxcolor" id="action">
-                        <option value="Install">Install</option>
-                        <option value="Uninstall">Uninstall</option>
-                    </select>
-                </form>
-            </div>
-            <div class="row">
-                <form class="form-group col-md-6">
-                    <label>
-                        <h6 class="la-titles">instance_ids</h6>
-                    </label>
-                    <input type="text" class="form-control boxcolor" id="instance_ids" value="i-08941f506bbeb7b3b"
-                           readonly>
-                </form>
-                <form class="form-group col-md-6">
-                    <label>
-                        <h6 class="la-titles">document_name</h6>
-                    </label>
-                    <input type="text" class="form-control boxcolor" id="document_name" value="AWS-ConfigureAWSPackage"
-                           readonly>
-                </form>
-            </div>
-            <div>
-                <button class="btn btn button-color sendbutton btn-md" id="falconInstallSubmit">Submit
-                </button>
-            </div>
-            <div>
-                <div class="loader2" id="spinnerfalconinstall" style="visibility: hidden"></div>
-            </div>
+    </div>
 
-        </div>
-        {# new card#}
-        <div class="card shadow collapse multi-collapse8 card-border p-3" style="margin-top: 20px; visibility: hidden"
-             id="install_falcon_out">
-            <pre id="install_falcon_response">
-            </pre>
-            <button class="btn btn button-color sendbutton btn-md" id="phase2submit">Retry Exploit
-                </button>
-        </div>
 
     </div>
 </section>
 
-
 {% endblock content %}
 {% block scriptblock %}
-<script src="static/jsonview.js"></script>
+
+<script src="/static/jenkins-common.js"></script>
 <script src="/static/phase1.js"></script>
+<script src="/static/jsonview.js"></script>
 
 
 {% endblock scriptblock %}

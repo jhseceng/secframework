@@ -7,6 +7,13 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
+          default: Tagging Information
+        Parameters:
+          - CSAccounting
+          - CSDepartment
+          - CSOwner
+          - CSBusiness
+      - Label:
           default: Jenkins Network Configuration
         Parameters:
           - JenkinsVPCCIDR
@@ -48,6 +55,29 @@ Metadata:
       VPCCIDR:
         default: VPC CIDR
 Parameters:
+  CSOwner:
+    Type: String
+    Description: Owner/Creator of resource
+    MaxLength: 20
+    Default: Justin Harris
+
+  CSBusiness:
+      Type: String
+      Description: Department
+      MaxLength: 20
+      Default: Sales - 310000
+
+  CSAccounting:
+    Type: String
+    Description: Billing Account
+    MaxLength: 20
+    Default: dev
+
+  CSDepartment:
+    Type: String
+    Description: Department
+    MaxLength: 20
+    Default: Sales
   s3BucketName:
     Description: Name of the S3 Bucket
     Type: String
@@ -225,6 +255,14 @@ Resources:
               - Jenkins-VPC
         - Key: CreatedBy
           Value: GuardDuty Test Script
+        - key: cstag-accounting
+          Value: dev
+        - key: cstag-business
+          Value: Sales
+        - key: cstag-department
+          Value: Sales - 310000
+        - key: cstag-owner
+          Value: !Ref CSOwner
   JenkinsNATGateway:
     DependsOn: VPCGatewayAttachment
     Type: AWS::EC2::NatGateway
@@ -241,6 +279,14 @@ Resources:
       Tags:
         - Key: Network
           Value: Public
+        - key: cstag-accounting
+          Value: dev
+        - key: cstag-business
+          Value: Sales
+        - key: cstag-department
+          Value: Sales - 310000
+        - key: cstag-owner
+          Value: !Ref CSOwner
   JenkinsVPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -262,6 +308,14 @@ Resources:
           Value: Private
         - Key: CreatedBy
           Value: GuardDuty Test Script
+        - key: cstag-accounting
+          Value: dev
+        - key: cstag-business
+          Value: Sales
+        - key: cstag-department
+          Value: Sales - 310000
+        - key: cstag-owner
+          Value: !Ref CSOwner
   JenkinsPublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -399,6 +453,25 @@ Resources:
       LaunchConfigurationName: !Ref 'LaunchConfig'
       MinSize: '0'
       MaxSize: '1'
+      Tags:
+        - key: Name
+          PropagateAtLaunch: true
+          Value: Jenkins
+        - Key: CRWD_MANAGED
+          PropagateAtLaunch: true
+          Value: YES
+        - key: cstag-accounting
+          PropagateAtLaunch: true
+          Value: dev
+        - key: cstag-business
+          PropagateAtLaunch: true
+          Value: Sales
+        - key: cstag-department
+          PropagateAtLaunch: true
+          Value: Sales - 310000
+        - key: cstag-owner
+          PropagateAtLaunch: true
+          Value: !Ref CSOwner
       TargetGroupARNs:
         - !Ref 'PublicLoadBalancerTargetGroup'
   LaunchConfig:
@@ -525,6 +598,17 @@ Resources:
           Value: !Ref 'AWS::StackName'
         - Key: CreatedBy
           Value: GuardDuty Test Script
+        - Key: CreatedBy
+          Value: GuardDuty Test Script
+        - key: cstag-accounting
+          Value: dev
+        - key: cstag-business
+          Value: Sales
+        - key: cstag-department
+          Value: Sales - 310000
+        - key: cstag-owner
+          Value: !Ref CSOwner
+
   AttackerInternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -753,6 +837,7 @@ Resources:
           #! /bin/bash
           # version 2.0
           # export account id and region on instance startup
+          # Added region and cloudwatch log group
           exec > /tmp/part-001.log 2>&1
           cat > /etc/profile.d/load_env.sh << 'EOF'
 
