@@ -1,0 +1,12 @@
+version: '3'
+services:
+  attacker:
+    image: jharris10/securityhubconnector:dev
+    ports:
+      - "443:443"
+      - "5000:5000"
+
+    depends_on:
+          - redis
+  redis:
+    image: redis

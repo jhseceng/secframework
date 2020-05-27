@@ -4,84 +4,175 @@
 
 <section class="card shadow p-3">
     <div class="card-body">
-        <div class="header-color name-color">
-        <a class="header-color name-color" href="{{ url_for('launch_phase1') }}">Stage 1 - Without Falcon Protection</a><br>
-        <a class="header-color name-color" href="{{ url_for('launch_phase2') }}">Stage 2 - With Falcon Protection</a><br>
-        </div>
-        <h1 class="class-titles latitle">Phase 2</h1>
 
-        <!--Stage 8-->
-        <div class="card-header header-color headersize" style="margin-top: 20px" id="headinginstallfal">
+        <h1>Phase 2:</h1>
+
+        <!--        &lt;!&ndash;Stage 8&ndash;&gt;-->
+        <!--        <div class="card-header header-color headersize" style="margin-top: 20px" id="headinginstallfal">-->
+        <!--            <h5 class="mb-0">-->
+        <!--                <button type="button" class="btn btn-link name-color" data-toggle="collapse"-->
+        <!--                        data-target=".multi-collapse8"-->
+        <!--                        aria-expanded="true"-->
+        <!--                        aria-controls="#collapseinstallfal1 #collapseinstallfal2 #collapseinstallfal3">-->
+        <!--                    Stage 1 - Install falcon-->
+        <!--                </button>-->
+        <!--            </h5>-->
+        <!--        </div>-->
+        <!--        <div class="card collapse multi-collapse8 card-border shadow p-3" style="margin-top: 20px"-->
+        <!--             id="collapseinstallfal1">-->
+        <!--            <div class="row">-->
+        <!--                <form class="form-group col-md-6">-->
+        <!--                    <label>-->
+        <!--                        <h6>package_name</h6>-->
+        <!--                    </label>-->
+        <!--                    <input type="text" class="form-control boxcolor" id="package_name" value="FalconSensor">-->
+        <!--                </form>-->
+        <!--                <form class="form-group col-md-6">-->
+        <!--                    <label>-->
+        <!--                        <h6>Action</h6>-->
+        <!--                    </label>-->
+        <!--                    <select class="form-control units boxcolor" id="action">-->
+        <!--                        <option value="Install">Install</option>-->
+        <!--                        <option value="Uninstall">Uninstall</option>-->
+        <!--                    </select>-->
+        <!--                </form>-->
+        <!--            </div>-->
+        <!--            <div class="row">-->
+        <!--                <form class="form-group col-md-6">-->
+        <!--                    <label>-->
+        <!--                        <h6>AWS InstanceId</h6>-->
+        <!--                    </label>-->
+        <!--                    <select name="my" class="custom-select boxcolor" id="instance_ids" multiple required>-->
+        <!--                        {% for managed_instance in managed_instances %}-->
+        <!--                        <option value="{{managed_instance}}">{{managed_instance}}</option>-->
+        <!--                        {% endfor %}-->
+        <!--                    </select>-->
+        <!--                </form>-->
+        <!--                <form class="form-group col-md-6">-->
+        <!--                    <label>-->
+        <!--                        <h6>document_name</h6>-->
+        <!--                    </label>-->
+        <!--                    <input type="text" class="form-control boxcolor" id="document_name" value="AWS-ConfigureAWSPackage"-->
+        <!--                           readonly>-->
+        <!--                </form>-->
+        <!--            </div>-->
+        <!--            <div>-->
+        <!--                <button class="btn btn button-color sendbutton btn-md" id="falconInstallSubmit">Submit-->
+        <!--                </button>-->
+        <!--            </div>-->
+        <!--            <div>-->
+        <!--                <div class="loader2" id="spinnerfalconinstall" style="visibility: hidden"></div>-->
+        <!--            </div>-->
+
+        <!--        </div>-->
+        <!--        <div class="card shadow collapse multi-collapse8 card-border p-3" style="margin-top: 20px; visibility: hidden"-->
+        <!--             id="install_falcon_out">-->
+        <!--            <pre id="install_falcon_response">-->
+        <!--            </pre>-->
+        <!--            <button class="btn btn button-color sendbutton btn-md" id="phase2submit">Retry Exploit-->
+        <!--            </button>-->
+        <!--        </div>-->
+
+        <!--Step 9-->
+        <div class="card-header header-color headersize" style="margin-top: 20px" id="hostQuery">
             <h5 class="mb-0">
                 <button type="button" class="btn btn-link name-color" data-toggle="collapse"
-                        data-target=".multi-collapse8"
-                        aria-expanded="true"
-                        aria-controls="#collapseinstallfal1 #collapseinstallfal2 #collapseinstallfal3">
-                    Stage 1 - Install falcon
+                        data-target=".multi-collapse6"
+                        aria-expanded="true" aria-controls="#collapse6Query1 #collapseQuery2 #collapseQuery3"
+                        id="queryHostsSubmit">
+                    Step 1 - Show Managed Hosts
                 </button>
             </h5>
         </div>
-        <div class="card collapse multi-collapse8 card-border shadow p-3" style="margin-top: 20px"
-             id="collapseinstallfal1">
+        <div class="card collapse multi-collapse6 card-border shadow p-3" style="margin-top: 20px; margin-bottom: 5px"
+             id="collapse6Query1">
+            <div>
+                <button class="btn btn button-color sendbutton btn-md" id="drawHostTableSubmit">Refresh Table
+                </button>
+            </div>
+
+            <div>
+                <div class="loader2" id="spinnerHostQuery" style="visibility: hidden"></div>
+            </div>
+        </div>
+        <div class="card shadow collapse multi-collapse6 card-border p-3" style="visibility: visible"
+             id="query_host_out">
+            <div class="table-responsive">
+                <table id="hostQueryTable">
+                    <!-- here goes our data! -->
+                </table>
+            </div>
             <div class="row">
                 <form class="form-group col-md-6">
                     <label>
-                        <h6 class="la-titles">package_name</h6>
+                        <h6>package_name</h6>
                     </label>
                     <input type="text" class="form-control boxcolor" id="package_name" value="FalconSensor">
                 </form>
                 <form class="form-group col-md-6">
                     <label>
-                        <h6 class="la-titles">Action</h6>
-                    </label>
-                    <select class="form-control units boxcolor" id="action">
-                        <option value="Install">Install</option>
-                        <option value="Uninstall">Uninstall</option>
-                    </select>
-                </form>
-            </div>
-            <div class="row">
-                <form class="form-group col-md-6">
-                    <label>
-                        <h6 class="la-titles">AWS InstanceId</h6>
-                    </label>
-                    <select name="my" class="custom-select boxcolor" id="instance_ids" multiple required>
-                        {% for managed_instance in managed_instances %}
-                        <option value="{{managed_instance}}">{{managed_instance}}</option>
-                        {% endfor %}
-                    </select>
-                </form>
-                <form class="form-group col-md-6">
-                    <label>
-                        <h6 class="la-titles">document_name</h6>
+                        <h6>document_name</h6>
                     </label>
                     <input type="text" class="form-control boxcolor" id="document_name" value="AWS-ConfigureAWSPackage"
                            readonly>
                 </form>
+                <form class="form-group col-md-6">
+                    <div class="btn btn button-color sendbutton" style="margin-top: 10px; visibility: visible"
+                         id="falconformInstallSubmit">Update Hosts
+                    </div>
+
+                    <div>
+                        <div class="loader2" id="spinnerfalconinstall" style="visibility: hidden"></div>
+                    </div>
+                </form>
             </div>
+        </div>
+
+        <!--Step 10-->
+        <div class="card-header header-color headersize" style="margin-top: 20px" id="headingQuerylogs">
+            <h5 class="mb-0">
+                <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target=".multi-collapse7"
+                        aria-expanded="false" aria-controls="#collapsQuerylogs1 #collapsQuerylogs2 #collapsQuerylogs3">
+                    Step 2 - Show Guard Duty Logs
+                </button>
+            </h5>
+        </div>
+
+        <div class="card collapse multi-collapse7 card-border shadow p-3" style="margin-top: 20px"
+             id="collapsQuerylogs1">
+            <div class="row">
+                <form class="form-group col-md-6">
+                    <label>
+                        <h6>Select EC2 Instance to view Guard Duty Incidents</h6>
+                    </label>
+                    <select name="my" class="form-control units boxcolor" id="guardDutyEventsSelect" multiple required>
+                        {% for event_name in gd_events_of_interest %}
+                        <option value="{{event_name}}">{{event_name}}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+                </form>
+            </div>
+        </div>
+
+        <div class="card card collapse multi-collapse7 card-border shadow p-3 treebody"
+             style="margin-top: 20px; margin-bottom: 20px">
             <div>
-                <button class="btn btn button-color sendbutton btn-md" id="falconInstallSubmit">Submit
+                <button class="btn btn button-color sendbutton btn-md" id="queryGdSubmit">Submit
                 </button>
             </div>
             <div>
-                <div class="loader2" id="spinnerfalconinstall" style="visibility: hidden"></div>
+                <div class="loader5" id="spinnerdutylogs" style="visibility: hidden"></div>
             </div>
-
-        </div>
-        <div class="card shadow collapse multi-collapse8 card-border p-3" style="margin-top: 20px; visibility: hidden"
-             id="install_falcon_out">
-            <pre id="install_falcon_response">
-            </pre>
-            <button class="btn btn button-color sendbutton btn-md" id="phase2submit">Retry Exploit
-            </button>
+            <div class="root" id="treeroot" style="margin-top: 20px"></div>
         </div>
 
-        <!--Stage 9-->
+        <!--Step 10-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingExploit">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target=".multi-collapse4"
                         aria-expanded="false" aria-controls="#collapsExploit1 #collapsExploit2 #collapsExploit3">
-                    Stage 2 - Exploit
+                    Step 3 - Exploit
                 </button>
             </h5>
         </div>
@@ -89,10 +180,7 @@
              style="margin-top: 20px; margin-bottom: 20px"
              id="collapsExploit1">
             <p>
-                One of the steps that generally precedes a network-based attack is port scanning, in which a hacker
-                tries to discover which services are being offered in order to launch a more specific attack. In this
-                example we will run an nmap probe towards the AWS ALB that fronts our service and provides WAF
-                protection.
+                Create the exploit that will allow us to control the web server
             </p>
         </div>
         <div class="card collapse multi-collapse4 hide card-border shadow p-3"
@@ -100,161 +188,98 @@
              id="collapsExploit2">
             <form style="margin-top: 15px">
                 <div class="form-group">
-                    <button class="btn btn button-color sendbutton" style="margin-top: 5px; margin-left: 20px"
+                    <button class="btn btn button-color sendbutton"
                             id="exploit_submit"
                     >Run Exploit
                     </button>
                     <div class="loader" id="spinner" style="visibility: hidden"></div>
                 </div>
                 <div id="successAlert" class="alert alert-success" role="alert" style="display: none"></div>
-                <div id="errorAlert" class="alert alert-danger" role="alert" style="display: none;"></div>
+                <div id="errorAlert" class="alert alert-danger" role="alert" style="display: none"></div>
             </form>
         </div>
         <div class="card collapse multi-collapse4 hide card-border shadow p-3 Exploit-output"
              id="collapsExploit3"
-             style="visibility: collapse">
-        <pre id="Exploit_response">
+             style="visibility: hidden">
+    <pre id="Exploit_response">
 
-        </pre>
+    </pre>
         </div>
 
-        <!--Stage 10-->
+        <!--Step 11-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingLateral">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target=".multi-collapse5"
                         aria-expanded="false" aria-controls="#collapseLateral1 #collapseLateral12 #collapseLateral13">
-                    Stage 3 - Lateral movement
+                    Step 4 - Lateral movement
                 </button>
             </h5>
         </div>
         <div class="card collapse multi-collapse5 hide card-border shadow p-3"
              style="margin-top: 20px; margin-bottom: 20px"
              id="collapseLateral1">
-            <p>Gather information for exfiltration</p>
+            <p>Gather information for Data exfiltration</p>
         </div>
         <div class="card collapse multi-collapse5 hide card-border shadow p-3"
              style="margin-top: 20px; margin-bottom: 20px"
              id="collapseLateral2">
-            <form id="formsendcmd" style="margin-top: 20px; margin-left: 20px; margin-right: 20px; margin-bottom: 20px">
-                <div class="input-group">
+            <div>
+                <form id="formsendcmd">
+                    <fieldset>
+                        <div class="form-group">
+                            <label for="customCommandInput">Enter Custom Command:</label>
+                            <input type="text" id="customCommandInput" class="form-control boxcolor"
+                                   placeholder="Custom Command">
+                        </div>
+                        <div class="form-group">
+                            <label for="cmdtosend">Select Command:</label>
+                            <select class="custom-select form-control boxcolor" id="cmdtosend">
+                                <option selected>ls -al</option>
+                                <option value="ls">ls</option>
+                                <option value="ps -ef">ps -ef</option>
+                                <option value="netstat -an">netstat -an</option>
+                                <option value="whoami">whoami</option>
+                                <option value="dig GuardDutyC2ActivityB.com any">Test GuardDutyC2Activity</option>
+                                <option value="curl -s http://xmr.pool.minergate.com/dhdhjkhdjkhdjkhajkhdjskahhjkhjkahdsjkakjasdhkjahdjk > /dev/null">
+                                    Test GuardDuty Mining
+                                </option>
+                            </select>
+                        </div>
 
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="disabledFieldsetCheck">
+                            <label class="custom-control-label" for="disabledFieldsetCheck">Check this custom
+                                checkbox</label>
+                        </div>
 
-                    <div class="input-group-prepend">
-                        <label class="input-group-text opcolor" form="inputGroupSelect01">Options</label>
-                    </div>
+                        <button class="btn btn button-color sendbutton" style="margin-top: 17px" id="send_submit"
+                        >Run Command
+                        </button>
+                    </fieldset>
+                </form>
+            </div>
+            <div>
+                <div class="loader4" id="spinnerlatmove" style="visibility: hidden"></div>
+            </div>
+            <!--            <form id="formsendcmd" style="margin-top: 20px; margin-left: 20px; margin-right: 20px; margin-bottom: 20px">-->
+            <!--                <div class="input-group">-->
+            <!--                    <div class="input-group-prepend">-->
+            <!--                        <label class="input-group-text opcolor" form="inputGroupSelect01">Options</label>-->
+            <!--                    </div>-->
 
+            <!--                </div>-->
 
-                    <select class="custom-select boxcolor" id="cmdtosend">
-                        <option selected>ls -al</option>
-                        <option value="ls">ls</option>
-                        <option value="ps -ef">ps -ef</option>
-                        <option value="netstat -an">netstat -an</option>
-                    </select>
-
-                </div>
-                <div class="form-group">
-                    <button class="btn btn button-color sendbutton" style="margin-top: 17px" id="send_submit"
-                    >Run Command
-                    </button>
-                    <div id="errorAlertcmd" class="alert alert-danger" role="alert" style="display: none;"></div>
-                </div>
-            </form>
+            <!--            </form>-->
         </div>
-        <div class="card collapse multi-collapse5 hide card-border shadow p-3" id="collapseLateral3">
+        <div class="card collapse multi-collapse5 hide card-border shadow p-3" id="collapseLateral3"
+             style="visibility: hidden">
            <pre id="lateral_response">
     </pre>
         </div>
-
-        <!--Stage 11-->
-        <div class="card-header header-color headersize" style="margin-top: 20px" id="headingQuery">
-            <h5 class="mb-0">
-                <button type="button" class="btn btn-link name-color" data-toggle="collapse"
-                        data-target=".multi-collapse6"
-                        aria-expanded="true" aria-controls="#collapseQuery1 #collapseQuery2 #collapseQuery3">
-                    Stage 4 - Configure Blocking
-                </button>
-            </h5>
-        </div>
-        <div class="card collapse multi-collapse6 card-border shadow p-3" style="margin-top: 20px; margin-bottom: 20px"
-             id="collapseQuery1">
-            <form>
-                <div class="row">
-                    <div class="form-group col-md-6">
-                        <label>
-                            <h6 class="la-titles">Units:</h6>
-                        </label>
-                        <select class="form-control units boxcolor" id="time_interval">
-                            <option value="hours">Hours</option>
-                            <option value="minutes">Minutes</option>
-                            <option value="seconds">Seconds</option>
-                            <option value="days">Days</option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label>
-                            <h6 class="la-titles">Time Interval:</h6>
-                        </label>
-                        <select class="form-control units boxcolor" id="time_value">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 20px">
-                    <label>
-                        <h6 class="la-titles">VPC Flow Log - Cloudwatch Log Group:</h6>
-                    </label>
-                    <!--ghtr-vpc-flow-log-->
-                    <input type="text" class="form-control boxcolor" id="log_group_name" value="{{log_group}}"
-                           readonly>
-                </div>
-
-                <div class="form-group" style="margin-top: 20px">
-                    <label>
-                        <h6 class="la-titles">Filter String:</h6>
-                    </label>
-                    <input type="text" class="form-control boxcolor" id="query_string"
-                           value='filter srcAddr="{{attacker_ip}}"'>
-                </div>
-                <div>
-                    <button class="btn btn button-color sendbutton" style="margin-top: 10px; margin-bottom: 10px"
-                            id="queryVpc">Submit
-                    </button>
-                </div>
-                <div>
-                    <div class="loader2" id="spinnerflowlog" style="visibility: hidden"></div>
-                </div>
-            </form>
-
-        </div>
-        <div class="card shadow collapse multi-collapse6 card-border p-3" style="visibility: hidden" id="query_vpc_out">
-                       <pre id="vpcquery_response">
-    </pre>
+        <div style="margin-top: 20px">
+            <a class="name-color2" href="{{ url_for('launch_phase1') }}">Stage 1 - Without Falcon Protection</a>
         </div>
 
-        <!--Stage 12-->
-        <div class="card-header header-color headersize" style="margin-top: 20px" id="headingQuerylogs">
-            <h5 class="mb-0">
-                <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target=".multi-collapse7"
-                        aria-expanded="false" aria-controls="#collapsQuerylogs1 #collapsQuerylogs2 #collapsQuerylogs3">
-                    Stage 5 - Rerun the Exploit
-                </button>
-            </h5>
-        </div>
-        <div class="card card collapse multi-collapse7 card-border shadow p-3 treebody"
-             style="margin-top: 20px; margin-bottom: 20px">
-            <button class="btn btn button-color sendbutton col-md-1" id="queryGdSubmit">Submit
-            </button>
-            <div class="root"></div>
-        </div>
 
     </div>
 </section>
@@ -262,5 +287,6 @@
 {% endblock content %}
 {% block scriptblock %}
 <script src="/static/jenkins-common.js"></script>
-<script src="/static/phase1.js"></script>
+<script src="/static/phase2.js"></script>
+<script src="/static/jsonview.js"></script>
 {% endblock scriptblock %}

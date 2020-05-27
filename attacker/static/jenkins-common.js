@@ -46,6 +46,8 @@ document.getElementById("send_submit").addEventListener("click",
 function submitsend() {
     event.preventDefault()
    function handleResponseStatusAndContentType(response) {
+        document.getElementById('spinnerlatmove').style.visibility = 'hidden';
+           document.getElementById('collapseLateral3').style.visibility = 'visible';
        const contentType = response.headers.get('content-type');
 
        if (response.status === 401) throw new Error('Request was not authorized.');
@@ -78,6 +80,8 @@ function submitsend() {
        cli: commandselected
    };
    let val = JSON.stringify(entry)
+    document.getElementById('spinnerlatmove').style.visibility = 'visible';
+   document.getElementById('collapseLateral3').style.visibility = 'hidden';
    fetch('/send', {
        method: 'POST',
        body: JSON.stringify(entry),
@@ -85,99 +89,59 @@ function submitsend() {
        headers: new Headers({
            "content-type": "application/json"
        })
-   })
+        })
        .then(response => handleResponseStatusAndContentType(response))
-       .catch(error => {
-           console.error(error);
-           return error;
+           .catch(error => {
+               console.error(error);
+               return error;
        })
 })
 
-document.getElementById("queryVpc").addEventListener("click",
-async function getVpcFlowasync () {
-     event.preventDefault();
-
-    // let time_interval = document.getElementById('time_interval').value;
-
-    let time_interval = $('#time_interval').val();
-    let time_value = $('#time_value').val();
-    let query_string = $('#query_string').val();
-    let log_group_name = $('#log_group_name').val();
-    $('#query_vpc_out')[0].style.visibility="hidden"
-    //$('#query_vpc_out')[0].style.display = "none"
-    document.getElementById("spinnerflowlog").style.visibility = "visible";
-
-    let payload = {
-        time_interval: time_interval,
-        time_value: time_value,
-        query_string: query_string,
-        log_group_name: log_group_name
-    };
-    try {
-        const response = await fetch('/vpclogs',
-            {
-                method: 'POST',
-                cache: "no-cache",
-                body: JSON.stringify(payload),
-                headers: new Headers
-                ({
-                    "content-type": "application/json"
-                })
-            })
-        await response.json()
-            .then((data) => {
-                let log_data_array = []
-                document.getElementById("spinnerflowlog").style.visibility = "hidden";
-                if (data.logs.length > 0) {
-                    log_data_array = data.logs
-                }
-                else {
-                    log_data_array = ["No matching logs"]
-                }
-                document.getElementById("spinnerflowlog").style.visibility = "hidden";
-                document.getElementById("vpcquery_response").textContent = JSON.stringify(data, undefined, 2);
-                $('#query_vpc_out')[0].style.visibility = "visible"
-            }
-        )
-    }
-    catch{
-        console.log('error in fetching posts')
-    }
-})
-
-document.getElementById("queryGdSubmit").addEventListener("click",
-async function queryGuardDutyasync () {
-     event.preventDefault();
-     let gdEventsToFilter = $('#guardDutyEventsSelect').val();
-     let payload = {
-        events_of_interest: gdEventsToFilter
-    };
-     try {
-         const response = await fetch('/gdquery',
-             {
-                 method: 'POST',
-                 cache: "no-cache",
-                 body: JSON.stringify(payload),
-                 headers: new Headers
-                 ({
-                     "content-type": "application/json"
-                 })
-             })
-         await response.json()
-             .then((res) => {
-                 return res.results;
-             })
-             .then((data) => {
-                 for (index = 0; index < data.length; ++index) {
-                        datastr = JSON.stringify(data[index])
-               jsonView.format(datastr, '.root');
-             }})
-     }
-     catch {
-         console.log('error in fetching posts')
-     }
-
-})
 
 
+
+
+    // // let time_interval = document.getElementById('time_interval').value;
+    // empty_array = []
+    // let package_name = $('#package_name').val();
+    // let action = $('#action').val();
+    // let instance_ids = $('#instance_ids').val();
+    // let document_name = $('#document_name').val();
+    // if (instance_ids.length == 0) {
+    //     alert('Please select an AWS instance')
+    //     return
+    // }
+    // $('#install_falcon_out')[0].style.visibility="hidden"
+    // //$('#query_vpc_out')[0].style.display = "none"
+    // document.getElementById("spinnerfalconinstall").style.visibility = "visible";
+    //
+    // let payload = {
+    //     package_name: package_name,
+    //     action: action,
+    //     instance_ids: instance_ids,
+    //     document_name: document_name
+    // };
+    // try {
+    //     const response = await fetch('/installfalcon',
+    //         {
+    //             method: 'POST',
+    //             cache: "no-cache",
+    //             body: JSON.stringify(payload),
+    //             headers: new Headers
+    //             ({
+    //                 "content-type": "application/json"
+    //             })
+    //         })
+    //     await response.json()
+    //         .then((data) => {
+    //             document.getElementById("spinnerfalconinstall").style.visibility = "hidden";
+    //             $('#install_falcon_response').html(data.Result);
+    //             //$('#query_vpc_out')[0].style.display = "block"
+    //             $('#install_falcon_out')[0].style.visibility = "visible"
+    //         }
+    //     )
+    // }
+    // catch{
+    //     console.log('error in fetching posts')
+    // }
 

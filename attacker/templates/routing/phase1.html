@@ -3,23 +3,18 @@
 {% block content %}
 <section class="card shadow p-3" id="collapse-section1" style="visibility: visible">
     <div class="card-body" style="width: auto">
-        <div class="header-color name-color">
-            <a class="header-color name-color" href="{{ url_for('launch_phase1') }}">Stage 1 - Without Falcon
-                Protection</a><br>
-            <a class="header-color name-color" href="{{ url_for('launch_phase2') }}">Stage 2 - With Falcon
-                Protection</a><br>
-        </div>
+
         <div xmlns="http://www.w3.org/1999/html">
-            <h1 class="class-titles latitle">The Attack Sequence</h1>
+            <h1>The Attack Sequence</h1>
         </div>
 
-        <!--Stage 1-->
+        <!--Step 1-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingNmap">
             <h5 class="mb-0">
                 <button type="button" class="btn btn-link name-color" data-toggle="collapse"
                         data-target=".multi-collapse"
                         aria-expanded="true" aria-controls="#collapsenmap1 #collapsenmap2 #collapsenmap3">
-                    Stage 1 - Discover Listening Services
+                    Step 1 - Discover Listening Services
                 </button>
             </h5>
         </div>
@@ -32,51 +27,54 @@
                 protection.
             </p>
         </div>
-        <div class="card collapse multi-collapse card-border shadow p-3" style="margin-top: 20px; margin-bottom: 20px"
+        <div class="card collapse multi-collapse card-border shadow p-3" style="margin-top: 20px"
              id="collapsenmap2">
             <form style="margin-top: 15px">
                 <div class="form-group">
-                    <button class="btn btn button-color sendbutton" style="margin-top: 5px; margin-left: 20px"
+                    <button class="btn btn button-color sendbutton"
                             id="nmapsubmit"
                     >Run nmap
                     </button>
                 </div>
             </form>
+            <div>
+                <div class="loader3" id="spinnerunnmap" style="visibility: hidden"></div>
+            </div>
         </div>
-        <div class="card collapse multi-collapse hide card-border shadow p-3" id="collapsenmap3"
-             style="visibility: hidden">
 
-        </div>
-        <div class="card collapse  multi-collapse card-border shadow p-3">
+        <div class="card collapse  multi-collapse card-border shadow p-3" style="margin-top: 20px; visibility: collapse">
             <pre id="nmap_response"></pre>
         </div>
 
-        <!--Stage 2-->
+        <!--Step 2-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingHeadings">
             <h5 class="mb-0">
                 <button type="button" class="btn btn-link  name-color" data-toggle="collapse"
                         data-target=".multi-collapse2"
                         aria-expanded="true" aria-controls="#collapseheaders1 #collapseheaders2 #collapseheaders3">
-                    Stage 2 - Reconnaissance
+                    Step 2 - Reconnaissance
                 </button>
             </h5>
         </div>
         <div class="card collapse multi-collapse2 hide card-border shadow p-3"
              style="margin-top: 20px; margin-bottom: 20px"
-             id="collapseheaders1"><p>If you are running a web server, it often shows the world what type of server it
+             id="collapseheaders1">
+            <p class="card-text">If you are running a web server, it often shows the world what type of server it
             is,
             its version number, and the operating system. This information is available in header fields and can be
             acquired using a web browser to make a simple HTTP request to any web application.
             These HTTP response headers can provide valuable information that would allow an attacker to launch targeted
             attacks against your web server and version. If a particular web server version is known to be vulnerable to
             a specific exploit, the attacker would just need to use that exploit as part of their assault on the target
-            web server.</p><b>
-            <a href="http://{{target_ip}}" target="_blank">The Jenkins server is here.</a></b>
+            web server.<div><a class="name-color3" href="http://{{target_ip}}" target="_blank">The Jenkins server is here.</a>
+            </div>
+            </p>
+
         </div>
         <div class="card collapse multi-collapse2 hide card-border shadow p-3"
              style="margin-top: 20px; margin-bottom: 20px"
              id="collapseheaders2">
-            <form id="formslaunch" style="margin-top: 20px; margin-left: 20px; margin-right: 20px; margin-bottom: 20px">
+            <form id="formslaunch">
                 <div class="input-group">
                 </div>
                 <div class="form-group">
@@ -93,13 +91,13 @@
         </div>
 
 
-        <!--Stage 3-->
+        <!--Step 3-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingInvestigate">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target=".multi-collapse3"
                         aria-expanded="false"
                         aria-controls="#collapseInvestigate1 #collapseInvestigate2 #collapseInvestigate3">
-                    Stage 3 - Investigate
+                    Step 3 - Investigate
                 </button>
             </h5>
         </div>
@@ -107,7 +105,7 @@
              style="margin-top: 20px; margin-bottom: 20px"
              id="collapseInvestigate1">
             <p>
-                searchsploit jenkins | grep 2.23 <br>
+                searchsploit jenkins | grep 2.32 <br>
                 and then: cat /usr/share/exploitdb/exploits/java/dos/41965.txt<br>
                 this shows a proof of concept with a sample payload in github
             </p>
@@ -117,7 +115,7 @@
              id="collapseInvestigate2">
             <form style="margin-top: 15px">
                 <div class="form-group">
-                    <button class="btn btn button-color sendbutton" style="margin-top: 5px; margin-left: 20px"
+                    <button class="btn btn button-color sendbutton"
                             id="Investigatesubmit"
                     >Research
                     </button>
@@ -132,12 +130,12 @@
     </pre>
         </div>
 
-        <!--Stage 4-->
+        <!--Step 4-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingExploit">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target=".multi-collapse4"
                         aria-expanded="false" aria-controls="#collapsExploit1 #collapsExploit2 #collapsExploit3">
-                    Stage 4 - Exploit
+                    Step 4 - Exploit
                 </button>
             </h5>
         </div>
@@ -145,10 +143,7 @@
              style="margin-top: 20px; margin-bottom: 20px"
              id="collapsExploit1">
             <p>
-                One of the steps that generally precedes a network-based attack is port scanning, in which a hacker
-                tries to discover which services are being offered in order to launch a more specific attack. In this
-                example we will run an nmap probe towards the AWS ALB that fronts our service and provides WAF
-                protection.
+                Create the exploit that will allow us to control the web server
             </p>
         </div>
         <div class="card collapse multi-collapse4 hide card-border shadow p-3"
@@ -156,7 +151,7 @@
              id="collapsExploit2">
             <form style="margin-top: 15px">
                 <div class="form-group">
-                    <button class="btn btn button-color sendbutton" style="margin-top: 5px; margin-left: 20px"
+                    <button class="btn btn button-color sendbutton"
                             id="exploit_submit"
                     >Run Exploit
                     </button>
@@ -174,12 +169,12 @@
     </pre>
         </div>
 
-        <!--Stage 5-->
+        <!--Step 5-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingLateral">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target=".multi-collapse5"
                         aria-expanded="false" aria-controls="#collapseLateral1 #collapseLateral12 #collapseLateral13">
-                    Stage 5 - Lateral movement
+                    Step 5 - Lateral movement
                 </button>
             </h5>
         </div>
@@ -192,16 +187,16 @@
              style="margin-top: 20px; margin-bottom: 20px"
              id="collapseLateral2">
             <div>
-                <form id="formsendcmd" style="margin-top: 20px; margin-left: 20px; margin-right: 20px; margin-bottom: 20px">
+                <form id="formsendcmd">
                     <fieldset>
                         <div class="form-group">
-                            <label for="customCommandInput">Enter Custom Command</label>
-                            <input type="text" id="customCommandInput" class="form-control"
+                            <label for="customCommandInput">Enter Custom Command:</label>
+                            <input type="text" id="customCommandInput" class="form-control boxcolor"
                                    placeholder="Custom Command">
                         </div>
                         <div class="form-group">
-                            <label for="cmdtosend">Select Command</label>
-                            <select class="custom-select boxcolor" id="cmdtosend">
+                            <label for="cmdtosend">Select Command:</label>
+                            <select class="custom-select form-control boxcolor" id="cmdtosend">
                                 <option selected>ls -al</option>
                                 <option value="ls">ls</option>
                                 <option value="ps -ef">ps -ef</option>
@@ -213,17 +208,26 @@
                                 </option>
                             </select>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="disabledFieldsetCheck">
-                            <label class="form-check-label" for="disabledFieldsetCheck">
-                                Use custom command
-                            </label>
+{#                        <div class="form-check">#}
+{#                            <input class="form-check-input" type="checkbox" id="disabledFieldsetCheck">#}
+{#                            <label class="form-check-label" for="disabledFieldsetCheck">#}
+{#                                Use custom command#}
+{#                            </label>#}
+{#                        </div>#}
+
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" class="custom-control-input" id="disabledFieldsetCheck">
+                          <label class="custom-control-label" for="disabledFieldsetCheck">Check this custom checkbox</label>
                         </div>
+
                         <button class="btn btn button-color sendbutton" style="margin-top: 17px" id="send_submit"
                     >Run Command
                     </button>
                     </fieldset>
                 </form>
+            </div>
+             <div>
+                <div class="loader4" id="spinnerlatmove" style="visibility: hidden"></div>
             </div>
 <!--            <form id="formsendcmd" style="margin-top: 20px; margin-left: 20px; margin-right: 20px; margin-bottom: 20px">-->
 <!--                <div class="input-group">-->
@@ -235,18 +239,18 @@
 
 <!--            </form>-->
         </div>
-        <div class="card collapse multi-collapse5 hide card-border shadow p-3" id="collapseLateral3">
+        <div class="card collapse multi-collapse5 hide card-border shadow p-3" id="collapseLateral3" style="visibility: collapse">
            <pre id="lateral_response">
     </pre>
         </div>
 
-        <!--Stage 6-->
+        <!--Step 6-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingQuery">
             <h5 class="mb-0">
                 <button type="button" class="btn btn-link name-color" data-toggle="collapse"
                         data-target=".multi-collapse6"
                         aria-expanded="true" aria-controls="#collapseQuery1 #collapseQuery2 #collapseQuery3">
-                    Stage 6 - Show VPC Flow Logs
+                    Step 6 - Show VPC Flow Logs
                 </button>
             </h5>
         </div>
@@ -256,7 +260,7 @@
                 <div class="row">
                     <div class="form-group col-md-6">
                         <label>
-                            <h6 class="la-titles">Units:</h6>
+                            <h6>Units:</h6>
                         </label>
                         <select class="form-control units boxcolor" id="time_interval">
                             <option value="hours">Hours</option>
@@ -267,7 +271,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label>
-                            <h6 class="la-titles">Time Interval:</h6>
+                            <h6>Time Interval:</h6>
                         </label>
                         <select class="form-control units boxcolor" id="time_value">
                             <option value="1">1</option>
@@ -285,7 +289,7 @@
                 </div>
                 <div class="form-group" style="margin-top: 20px">
                     <label>
-                        <h6 class="la-titles">VPC Flow Log - Cloudwatch Log Group:</h6>
+                        <h6>VPC Flow Log - Cloudwatch Log Group:</h6>
                     </label>
                     <!--ghtr-vpc-flow-log-->
                     <input type="text" class="form-control boxcolor" id="log_group_name" value="{{log_group}}"
@@ -294,33 +298,37 @@
 
                 <div class="form-group" style="margin-top: 20px">
                     <label>
-                        <h6 class="la-titles">Filter String:</h6>
+                        <h6>Filter String:</h6>
                     </label>
                     <input type="text" class="form-control boxcolor" id="query_string"
                            value='filter srcAddr="{{attacker_ip}}"'>
                 </div>
                 <div>
-                    <button class="btn btn button-color sendbutton" style="margin-top: 10px; margin-bottom: 10px"
+                    <button class="btn btn button-color sendbutton btn-md" style="margin-top: 10px"
                             id="queryVpc">Submit
                     </button>
                 </div>
-                <div>
-                    <div class="loader2" id="spinnerflowlog" style="visibility: hidden"></div>
-                </div>
             </form>
-
+             <div>
+                    <div class="loader2" id="spinnerflowlog" style="visibility: hidden"></div>
+             </div>
         </div>
+
         <div class="card shadow collapse multi-collapse6 card-border p-3" style="visibility: hidden" id="query_vpc_out">
-                       <pre id="vpcquery_response">
-    </pre>
+            <div><table id="tableflowlog"></table></div>
+
+        </div>
+        <div class="card shadow collapse multi-collapse6 card-border p-3" style="visibility: hidden" id="query_vpc_out_error">
+            <pre id="vpcquery_response">
+                        </pre>
         </div>
 
-        <!--Stage 7-->
+        <!--Step 7-->
         <div class="card-header header-color headersize" style="margin-top: 20px" id="headingQuerylogs">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed name-color" data-toggle="collapse" data-target=".multi-collapse7"
                         aria-expanded="false" aria-controls="#collapsQuerylogs1 #collapsQuerylogs2 #collapsQuerylogs3">
-                    Stage 7 - Show Guard Duty Logs
+                    Step 7 - Show Guard Duty Logs
                 </button>
             </h5>
         </div>
@@ -330,9 +338,9 @@
             <div class="row">
                 <form class="form-group col-md-6">
                     <label>
-                        <h6 class="la-titles">Select Guard Duty Event Types</h6>
+                        <h6>Select Guard Duty Event Types</h6>
                     </label>
-                    <select name="my" class="custom-select boxcolor" id="guardDutyEventsSelect" multiple required>
+                    <select name="my" class="form-control units boxcolor" id="guardDutyEventsSelect" multiple required>
                         {% for event_name in gd_events_of_interest %}
                         <option value="{{event_name}}">{{event_name}}</option>
                         {% endfor %}
@@ -344,10 +352,19 @@
 
         <div class="card card collapse multi-collapse7 card-border shadow p-3 treebody"
              style="margin-top: 20px; margin-bottom: 20px">
-            <button class="btn btn button-color sendbutton col-md-1" id="queryGdSubmit">Submit
+            <div>
+            <button class="btn btn button-color sendbutton btn-md" id="queryGdSubmit">Submit
             </button>
-            <div class="root"></div>
+            </div>
+            <div>
+                <div class="loader5" id="spinnerdutylogs" style="visibility: hidden"></div>
+             </div>
+            <div class="root" style="margin-top: 20px"></div>
         </div>
+
+        <div style="margin-top: 20px">
+          <a class="name-color2" href="{{ url_for('launch_phase2') }}">Stage 2 - With Falcon Protection</a>
+         </div>
     </div>
 
 
