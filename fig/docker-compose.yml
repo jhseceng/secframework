@@ -1,7 +1,7 @@
 version: '3'
 services:
   fig:
-    image: jharris10/securityhubconnector:dev
+    image: jharris10/fig:dev
     ports:
       - "443:443"
       - "5000:5000"
