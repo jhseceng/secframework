@@ -5,10 +5,10 @@
 #fileEnc.py will encode streaming credentials for the CID
 #as well as decode them
 
-import pickle
+# import pickle
 import os
 import boto3
-from simplecrypt import encrypt, decrypt
+# from simplecrypt import encrypt, decrypt
 import urllib
 
 

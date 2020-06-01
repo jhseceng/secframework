@@ -10,17 +10,14 @@
 from queue import Queue
 from time import sleep
 import threading
-import fileenc
 import datetime
 import awsquery
 import stream
 import sender
 import logger
-import cache
 import credvault
-import os
 import traceback
-import boto3
+
 
 
 class Entry():
@@ -33,21 +30,21 @@ class Entry():
         self.detection_queue = Queue()
         self.check_queue = Queue()
         self.ec2_queue = Queue()
-        self.cache = cache.Cache(self.logger)
-        self.aws_query = awsquery.AWSQuery(self.logger,self.ec2_queue,self.cache)
+        # self.cache = cache.Cache(self.logger)
+        self.aws_query = awsquery.AWSQuery(self.logger, self.ec2_queue)
         self.s = stream.Stream(self.detection_queue, self.logger, self.group)
         self.sender = sender.Sender(self.logger)
         self.region = self.sender.getRegion()
-        self.account = boto3.client('sts').get_caller_identity().get('Account')
+        # self.account = boto3.client('sts').get_caller_identity().get('Account')
         t = threading.Thread(target=self.s.main)
         print("starting stream thread ")
         t.start()
         t1 = threading.Thread(target=self.aws_query.main, args=(self.check_queue,))
         print("starting query thread ")
         t1.start()
-        t2 = threading.Thread(target=self.cache.main)
-        print("starting cacge thread ")
-        t2.start()
+        # t2 = threading.Thread(target=self.falconhostquery.main)
+        # print("starting cacge thread ")
+        # t2.start()
         print("Setup done, wait for detections........")
         self.ingest()
 
@@ -57,7 +54,7 @@ class Entry():
         # @params None
         # @returns None
         while True:
-            sleep(.1)
+            sleep(10)
             #returns false if empty
             if self.detection_queue.empty():
                 pass
@@ -65,30 +62,29 @@ class Entry():
                 print("Queue Size: " + str(self.detection_queue.qsize()))
                 #new event to be processed
                 try:
-                    #get it's MAC and IP
+                    #get it's ComputerName and IP
                     detection_event = self.detection_queue.get()
-                    mac = detection_event['event']['MACAddress']
-                    #formating to match
-                    mac = mac.replace("-", ":")
+                    # mac = detection_event['event']['MACAddress']
+                    ComputerName = detection_event['event']['ComputerName']
                     ip =  detection_event['event']['LocalIP']
-                    self.logger.statusWrite("New detection event %s, %s" %(mac,ip))
+                    self.logger.statusWrite("ComputerName and IP from event is {} {}".format(ip, ComputerName))
                 except:
-                    self.logger.errorWrite("Could not collect info for event %s, %s\n%s" %(mac,ip,traceback.format_exc()))
+                    self.logger.errorWrite("Could not collect info for event")
                     continue
                 #add the new detect to be chekced
-                self.logger.outputWrite('Send the detect to the queue')
+                self.logger.statusWrite('Send the event to the check_queue {}'.format(detection_event))
                 try:
-                    self.check_queue.put([[mac,ip],detection_event],timeout=1)
+                    self.check_queue.put([[ComputerName,ip],detection_event],timeout=1)
                 except Exception as e:
                     self.logger.errorWrite(
                         "Could not write to queue Exception %s" % (e))
-
             if self.ec2_queue.empty():
-                self.logger.statusWrite("Queue is empty")
+                self.logger.statusWrite("ec2_queue is empty")
                 pass
             else:
                 aws_info = self.ec2_queue.get()
                 self.logger.statusWrite("Got aws info from queue %s" %(aws_info))
+                print("Got info from queue: ")
                 #we have all the info we need a thread to send it
                 self.logger.statusWrite("starting translate thread:")
                 t = threading.Thread(target=self.translate, args=(aws_info[4],aws_info))
@@ -101,11 +97,12 @@ class Entry():
         # @params aws_info: the aws metadata
         # @returns None
         self.logger.outputWrite('Called entry.translate')
+        print(f"Running translate")
         manifest = {}
         try:
             manifest['SchemaVersion'] = "2018-10-08"
             manifest['ProductArn'] = "arn:aws:securityhub:%s:517716713836:product/crowdstrike/crowdstrike-falcon" %self.region
-            manifest['AwsAccountId'] = self.account
+            manifest['AwsAccountId'] = aws_info[0]
             manifest['Id'] = aws_info[1] + detection_event['event']['DetectId']
             manifest['GeneratorId'] = "Falcon Host"
             manifest['Types'] = ["Namespace: Threat Detections"]

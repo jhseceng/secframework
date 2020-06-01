@@ -114,7 +114,7 @@ class Stream():
                     if(decoded_line['metadata']['eventType'] == "DetectionSummaryEvent"):
                         if(int(self.priority) <= int(decoded_line['event']['Severity'])):
                             self.detection_queue.put(decoded_line)
-                            self.logger.statusWrite("Got a detection that we are adding to queue")
+                            self.logger.statusWrite("Adding to detection_queue")
                         else:
                             self.logger.statusWrite("New detection event, less than threshold %s. Skipping..." %self.priority)
                     self.logger.offsetWrite(decoded_line['metadata']['offset'])

@@ -21,6 +21,7 @@ class Sender():
             self.logger.errorWrite("Unable to load SecurityHub Endpoint Auth... Is it enabled for the IAM role?")
             os._exit(0)
         self.client = boto3.client('securityhub', region_name=self.region)
+
     def send(self,log):
         try:
             findings = [log]

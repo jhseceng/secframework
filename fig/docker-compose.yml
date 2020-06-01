@@ -1,6 +1,6 @@
 version: '3'
 services:
-  attacker:
+  fig:
     image: jharris10/securityhubconnector:dev
     ports:
       - "443:443"
@@ -10,3 +10,5 @@ services:
           - redis
   redis:
     image: redis
+    ports:
+      - 6379:6379

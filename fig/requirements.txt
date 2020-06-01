@@ -1,5 +1,3 @@
 boto3
-redis
-simple-crypt
 requests
 
