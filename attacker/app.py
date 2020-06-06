@@ -77,6 +77,20 @@ def run_install_package():
 
 
 def ssm_install_command(action: str, document_name: str, instance_ids: list, parameters: dict) ->dict:
+    """
+
+    :param action: "Install" / "Uninstall"
+    :param document_name: Falcon Package Name
+    :param instance_ids: AWS Instanceid
+    :param parameters:
+     parameters = {
+            'action': [action],
+            'installationType': ['Uninstall and reinstall'],
+            'name': [package_name]
+            # 'version': ['']
+        }
+    :return:
+    """
     try:
         ssm_client = boto3.client('ssm', region_name=region)
         response = ssm_client.send_command(

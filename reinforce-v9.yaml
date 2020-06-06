@@ -851,7 +851,7 @@ Resources:
           sudo wget -O dns-exfil.sh https://raw.githubusercontent.com/jhseceng/secframework/master/scripts/dns-exfil.sh
           sudo chmod 755 initialize_fig.sh
           sudo chmod 755 dns-exfil.sh
-          sudo bash ./initialize_fig.sh -v ${PublicLoadBalancer.DNSName} -r ${AWS::Region} -l ${LogGroup}
+          sudo bash ./initialize_fig.sh -r ${AWS::Region}
       InstanceType: m4.large
       AvailabilityZone: !Select
         - '0'
@@ -1511,6 +1511,7 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
+                  - 'logs:CreateLogGroup'
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                   - 'logs:DescribeLogGroups'
@@ -1519,8 +1520,8 @@ Resources:
   LogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
-      LogGroupName: !Join ['', [!Ref 'AWS::StackName', '-vpc-flow-log']]
-      RetentionInDays: '1'
+      LogGroupName: !Join ['', [!Ref 'AWS::StackName', 'vpc-flow-log']]
+      RetentionInDays: '5'
   FlowLog:
     Type: 'AWS::EC2::FlowLog'
     Properties:

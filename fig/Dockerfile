@@ -15,8 +15,7 @@ WORKDIR /app
 COPY . .
 RUN pip3 install -r requirements.txt
 
-
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["python3", "daemon.py"]
 #CMD ["python3", "daemon.py"]
 #ENTRYPOINT ["/bin/echo", "Hello world"]
 
